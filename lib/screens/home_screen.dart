@@ -1,55 +1,71 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_quanlykhachsan/models/loaiphong.dart';
-import 'package:mobile_quanlykhachsan/models/phongandloaiphong.dart';
-import 'package:mobile_quanlykhachsan/providers/booking_cart_provider.dart';
-import 'package:mobile_quanlykhachsan/screens/search_result_screen.dart';
-import '../API/datphong_api_service.dart';
 import 'package:provider/provider.dart';
-
-// Represents the main screen of the app
+import '../config/app_colors.dart';
+import '../config/app_dimensions.dart';
+import '../config/app_text_styles.dart';
+import '../models/loaiphong.dart';
+import '../API/datphong_api_service.dart';
+import '../providers/user_provider.dart';
+import '../providers/booking_cart_provider.dart';
+import '../widgets/loading_shimmer.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/primary_button.dart';
+import '../utils/date_formatter.dart';
+import 'search_result_screen.dart';
+import '../widgets/room_detail_dialog.dart';
+/// Màn hình Home hiện đại
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+class HomeScreenState extends State<HomeScreen> {
   DateTime _checkInDate = DateTime.now();
   DateTime _checkOutDate = DateTime.now().add(const Duration(days: 1));
-  int _roomCount = 1;
   int _guestCount = 2;
 
-  // Mock data for room types
-  final List<Loaiphong> phongdaydu = [];
-  void layphongdaydu() {
-    DatPhongApiService().gettatcaloaiphong().then((value) {
-      setState(() {
-        phongdaydu.addAll(value);
-      });
-    });
-  }
+  List<Loaiphong> _roomTypes = [];
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  final _apiService = DatPhongApiService();
 
   @override
   void initState() {
     super.initState();
-    layphongdaydu();
+    _loadRoomTypes();
   }
 
-  void _onItemTapped(int index) {
+  Future<void> _loadRoomTypes() async {
     setState(() {
-      _selectedIndex = index;
+      _isLoading = true;
+      _hasError = false;
     });
+
+    try {
+      final rooms = await _apiService.gettatcaloaiphong();
+      setState(() {
+        _roomTypes = rooms;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _isLoading = false;
+      });
+    }
   }
 
-  // Function to show the date range picker
-  Future<void> _selectDateRange(BuildContext context) async {
-    final DateTimeRange? picked = await showDateRangePicker(
+  Future<void> _selectDateRange() async {
+    final picked = await showDateRangePicker(
       context: context,
-      initialDateRange: DateTimeRange(start: _checkInDate, end: _checkOutDate),
+      initialDateRange: DateTimeRange(
+        start: _checkInDate,
+        end: _checkOutDate,
+      ),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Chọn ngày nhận - trả phòng',
@@ -59,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF007BFF),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
             ),
           ),
@@ -67,426 +83,532 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-    if (picked != null && picked.start != _checkInDate) {
-      // Ensure checkout date is always after check-in date
-      final newCheckOut =
-          picked.end.isBefore(picked.start.add(const Duration(days: 1)))
-          ? picked.start.add(const Duration(days: 1))
-          : picked.end;
 
+    if (picked != null) {
       setState(() {
         _checkInDate = picked.start;
-        _checkOutDate = newCheckOut;
+        _checkOutDate = picked.end;
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background Image
-          Image.asset(
-            'images/bg_mobile.png',
-            height: double.infinity,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          // Scrollable Content
-          CustomScrollView(
-            slivers: [
-              _buildAppBar(),
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSearchFilterCard(),
-                        const SizedBox(height: 24),
-                        _buildRoomTypesSection(),
-                      ],
-                    ),
-                  ),
-                ]),
-              ),
-            ],
-          ),
-        ],
+  void _search() {
+    final cart = context.read<BookingCartProvider>();
+    cart.updateSearchCriteria(_checkInDate, _checkOutDate);
+
+    final searchFuture = _apiService.timVaLayThongTinPhongDayDu(
+      _checkInDate,
+      _checkOutDate,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SearchResultScreen(
+          searchFuture: searchFuture,
+          checkInDate: _checkInDate,
+          checkOutDate: _checkOutDate,
+          guestCount: _guestCount,
+        ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  // Builds the top AppBar
-  SliverAppBar _buildAppBar() {
-    return SliverAppBar(
-      backgroundColor: Colors.blue,
-      pinned: true,
-      elevation: 0,
-      centerTitle: false,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Khách sạn Thanh Trà',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 20,
-              shadows: [
-                Shadow(blurRadius: 2.0, color: Colors.black.withOpacity(0.5)),
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().currentUser;
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(user?.hoten ?? 'Khách'),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                _buildSearchCard(),
+                const SizedBox(height: AppDimensions.lg),
+                _buildQuickFilters(),
+                const SizedBox(height: AppDimensions.lg),
+                _buildRoomTypesSection(),
               ],
             ),
           ),
         ],
       ),
-      actions: const [
-        Padding(
-          padding: EdgeInsets.only(right: 16.0),
-          child: CircleAvatar(backgroundImage: AssetImage('images/logo.jpg')),
-        ),
-      ],
     );
   }
 
-  // Builds the search and filter card with blur effect
-  Widget _buildSearchFilterCard() {
-    final DateFormat formatter = DateFormat('dd/MM/yyyy');
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+  /// App Bar với gradient
+  Widget _buildAppBar(String userName) {
+    return SliverAppBar(
+      expandedHeight: 120,
+      floating: false,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.headerGradient,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Ngày nhận - trả phòng',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: () => _selectDateRange(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimensions.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_today,
-                        color: Colors.white70,
-                        size: 20,
+                      const CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                        ),
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${formatter.format(_checkInDate)} - ${formatter.format(_checkOutDate)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(width: AppDimensions.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Xin chào,',
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ),
+                            Text(
+                              userName,
+                              style: AppTextStyles.h4.copyWith(
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
                           color: Colors.white,
+                        ),
+                        onPressed: () {
+                          // TODO: Navigate to notifications
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      backgroundColor: AppColors.primary,
+    );
+  }
+
+  /// Hero Search Card
+  Widget _buildSearchCard() {
+    return Container(
+      margin: const EdgeInsets.all(AppDimensions.md),
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.search,
+                color: AppColors.primary,
+                size: 28,
+              ),
+              const SizedBox(width: AppDimensions.sm),
+              Text(
+                'Tìm phòng của bạn',
+                style: AppTextStyles.h3,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.lg),
+
+          // Date selection
+          InkWell(
+            onTap: _selectDateRange,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+            child: Container(
+              padding: const EdgeInsets.all(AppDimensions.md),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                border: Border.all(color: AppColors.divider),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: AppDimensions.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ngày nhận - trả phòng',
+                          style: AppTextStyles.caption,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${DateFormatter.formatDate(_checkInDate)} - ${DateFormatter.formatDate(_checkOutDate)}',
+                          style: AppTextStyles.body1.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          DateFormatter.formatDuration(
+                            _checkInDate,
+                            _checkOutDate,
+                          ),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppDimensions.md),
+
+          // Guest count
+          Container(
+            padding: const EdgeInsets.all(AppDimensions.md),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+              border: Border.all(color: AppColors.divider),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.person_outline,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: AppDimensions.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Số khách',
+                        style: AppTextStyles.caption,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$_guestCount người',
+                        style: AppTextStyles.body1.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDropdown(
-                      'Số phòng',
-                      _roomCount,
-                      Icons.king_bed_outlined,
-                      (val) {
-                        if (val != null) setState(() => _roomCount = val);
-                      },
-                      [1, 2, 3, 4],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildDropdown(
-                      'Số người',
-                      _guestCount,
-                      Icons.person_outline,
-                      (val) {
-                        if (val != null) setState(() => _guestCount = val);
-                      },
-                      [1, 2, 3, 4, 5, 6],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 1. LẤY GIỎ HÀNG (DÙNG .read() VÌ Ở TRONG HÀM)
-                    final cart = context.read<BookingCartProvider>();
-
-                    // 2. GỌI HÀM MỚI: Cập nhật ngày và xóa giỏ hàng cũ
-                    cart.updateSearchCriteria(_checkInDate, _checkOutDate);
-
-                    // 3. Tạo "lời hứa" (Future)
-                    final Future<List<Phongandloaiphong>> searchFuture =
-                        DatPhongApiService().timVaLayThongTinPhongDayDu(
-                          _checkInDate,
-                          _checkOutDate,
-                        );
-
-                    // 4. Chuyển màn hình
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SearchResultScreen(
-                          searchFuture: searchFuture,
-                          // Vẫn truyền ngày sang để màn hình kết quả hiển thị
-                          checkInDate: _checkInDate,
-                          checkOutDate: _checkOutDate,
-                          guestCount: _guestCount,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFC107),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Tìm kiếm',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper to build dropdown menus for the new style
-  Widget _buildDropdown(
-    String title,
-    int value,
-    IconData icon,
-    void Function(int?) onChanged,
-    List<int> items,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<int>(
-          value: value,
-          items: items.map((int val) {
-            return DropdownMenuItem<int>(
-              value: val,
-              child: Text('$val', style: const TextStyle(color: Colors.black)),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
-          dropdownColor: Colors.grey[200],
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.white70, size: 20),
-            filled: true,
-            fillColor: Colors.white.withOpacity(0.2),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Builds the "Room Types" section with better contrast
-  Widget _buildRoomTypesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Loại phòng của khách sạn',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            shadows: [
-              Shadow(blurRadius: 2.0, color: Colors.black.withOpacity(0.7)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        ListView.separated(
-          itemCount: phongdaydu.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            return _buildRoomTypeCard(phongdaydu[index]);
-          },
-        ),
-      ],
-    );
-  }
-
-  // Builds a single card for a room type
-  Widget _buildRoomTypeCard(Loaiphong room) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'vi_VN',
-      symbol: '₫',
-    );
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.5),
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset(
-            'images/' + room.HinhAnhUrl!,
-            height: 180,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  room.Tenloaiphong,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 Row(
                   children: [
-                    _buildInfoChip(
-                      Icons.person_outline,
-                      '${room.Songuoitoida} người',
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: _guestCount > 1
+                          ? AppColors.primary
+                          : AppColors.textHint,
+                      onPressed: _guestCount > 1
+                          ? () => setState(() => _guestCount--)
+                          : null,
                     ),
-                    const SizedBox(width: 8),
-                    _buildInfoChip(
-                      Icons.king_bed_outlined,
-                      '${room.Sogiuong} giường',
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: AppColors.primary,
+                      onPressed: () => setState(() => _guestCount++),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    currencyFormatter.format(room.Giacoban),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF007BFF),
-                    ),
-                  ),
                 ),
               ],
             ),
           ),
+
+          const SizedBox(height: AppDimensions.lg),
+
+          // Search button
+          PrimaryButton(
+            text: 'Tìm kiếm phòng',
+            onPressed: _search,
+            icon: Icons.search,
+          ),
         ],
       ),
     );
   }
 
-  // Helper to build small info chips
-  Widget _buildInfoChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE9ECEF),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: const Color(0xFF495057)),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Color(0xFF495057))),
-        ],
-      ),
-    );
-  }
+  /// Quick filters
+  Widget _buildQuickFilters() {
+    final filters = [
+      {'icon': Icons.single_bed, 'label': 'Phòng đơn'},
+      {'icon': Icons.king_bed, 'label': 'Phòng đôi'},
+      {'icon': Icons.weekend, 'label': 'Suite'},
+      {'icon': Icons.apartment, 'label': 'VIP'},
+    ];
 
-  // Builds the bottom navigation bar
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Trang chủ',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+          child: Text(
+            'Lọc nhanh',
+            style: AppTextStyles.h3,
+          ),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search_outlined),
-          activeIcon: Icon(Icons.search),
-          label: 'Tìm kiếm',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today_outlined),
-          activeIcon: Icon(Icons.calendar_today),
-          label: 'Đặt chỗ',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: 'Tài khoản',
+        const SizedBox(height: AppDimensions.md),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+            itemCount: filters.length,
+            itemBuilder: (context, index) {
+              final filter = filters[index];
+              return Container(
+                width: 90,
+                margin: const EdgeInsets.only(right: AppDimensions.md),
+                child: InkWell(
+                  onTap: () {
+                    // TODO: Filter by type
+                  },
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppDimensions.sm),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          filter['icon'] as IconData,
+                          color: AppColors.primary,
+                          size: 32,
+                        ),
+                        const SizedBox(height: AppDimensions.sm),
+                        Text(
+                          filter['label'] as String,
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ],
-      currentIndex: _selectedIndex,
-      selectedItemColor: const Color(0xFF007BFF),
-      unselectedItemColor: Colors.grey[600],
-      onTap: _onItemTapped,
-      type: BottomNavigationBarType.fixed,
-      showUnselectedLabels: true,
-      elevation: 5,
-      backgroundColor: Colors.white,
+    );
+  }
+
+  /// Room types section
+  Widget _buildRoomTypesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Loại phòng của chúng tôi',
+                style: AppTextStyles.h3,
+              ),
+              TextButton(
+                onPressed: () {
+                  // TODO: View all
+                },
+                child: Text(
+                  'Xem tất cả',
+                  style: AppTextStyles.button.copyWith(
+                    fontSize: 14,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppDimensions.md),
+        if (_isLoading)
+          const SizedBox(
+            height: 400,
+            child: RoomListShimmer(itemCount: 2),
+          )
+        else if (_hasError)
+          SizedBox(
+            height: 400,
+            child: EmptyState(
+              icon: Icons.error_outline,
+              title: 'Có lỗi xảy ra',
+              subtitle: 'Không thể tải danh sách phòng',
+              actionText: 'Thử lại',
+              onAction: _loadRoomTypes,
+            ),
+          )
+        else if (_roomTypes.isEmpty)
+          const SizedBox(
+            height: 400,
+            child: EmptyState(
+              icon: Icons.hotel_outlined,
+              title: 'Chưa có phòng',
+              subtitle: 'Hiện tại chưa có loại phòng nào',
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.75,
+              crossAxisSpacing: AppDimensions.md,
+              mainAxisSpacing: AppDimensions.md,
+            ),
+            itemCount: _roomTypes.length,
+            itemBuilder: (context, index) {
+              return _buildRoomTypeCard(_roomTypes[index]);
+            },
+          ),
+        const SizedBox(height: AppDimensions.xl),
+      ],
+    );
+  }
+
+  /// Room type card
+  Widget _buildRoomTypeCard(Loaiphong room) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+
+    return Card(
+      elevation: AppDimensions.elevation2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => showRoomDetailDialog(context, room),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            AspectRatio(
+              aspectRatio: 1.5,
+              child: Image.asset(
+                'images/${room.HinhAnhUrl ?? 'placeholder.jpg'}',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: AppColors.background,
+                    child: const Icon(
+                      Icons.hotel,
+                      size: 48,
+                      color: AppColors.textHint,
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimensions.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      room.Tenloaiphong,
+                      style: AppTextStyles.h4.copyWith(fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: AppDimensions.xs),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${room.Songuoitoida}',
+                          style: AppTextStyles.caption,
+                        ),
+                        const SizedBox(width: AppDimensions.sm),
+                        Icon(
+                          Icons.king_bed_outlined,
+                          size: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${room.Sogiuong}',
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Text(
+                      formatter.format(room.Giacoban),
+                      style: AppTextStyles.price.copyWith(fontSize: 16),
+                    ),
+                    Text(
+                      '/ đêm',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

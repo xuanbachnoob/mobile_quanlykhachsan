@@ -66,4 +66,6 @@ class BookingCartProvider with ChangeNotifier {
     // NHÂN VỚI SỐ ĐÊM
     return total * numberOfNights; 
   }
+
+  void clear() {}
 }
