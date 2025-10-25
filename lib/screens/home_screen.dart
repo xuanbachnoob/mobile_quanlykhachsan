@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_quanlykhachsan/API/auth_api_service.dart';
 import 'package:provider/provider.dart';
 import '../config/app_colors.dart';
 import '../config/app_dimensions.dart';
@@ -14,6 +15,10 @@ import '../widgets/primary_button.dart';
 import '../utils/date_formatter.dart';
 import 'search_result_screen.dart';
 import '../widgets/room_detail_dialog.dart';
+import 'profile_screen.dart'; 
+import 'booking_history_screen.dart'; 
+import 'change_password_screen.dart'; 
+
 /// Màn hình Home hiện đại
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -114,6 +119,88 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ✅ THÊM METHODS XỬ LÝ MENU
+  void _handleMenuSelection(String value) {
+    switch (value) {
+      case 'profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+        );
+        break;
+      case 'history':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BookingHistoryScreen()),
+        );
+        break;
+      case 'change_password':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
+        );
+        break;
+      case 'logout':
+        _showLogoutDialog();
+        break;
+    }
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: Colors.red),
+            SizedBox(width: 12),
+            Text('Đăng xuất'),
+          ],
+        ),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              
+              // Show loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+              
+              // Logout
+              await context.read<UserProvider>().logout();
+              
+              // Navigate to login
+              if (mounted) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Đăng xuất'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().currentUser;
@@ -127,8 +214,6 @@ class HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildSearchCard(),
                 const SizedBox(height: AppDimensions.lg),
-                _buildQuickFilters(),
-                const SizedBox(height: AppDimensions.lg),
                 _buildRoomTypesSection(),
               ],
             ),
@@ -138,7 +223,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// App Bar với gradient
+  /// ✅ App Bar với PROFILE MENU
   Widget _buildAppBar(String userName) {
     return SliverAppBar(
       expandedHeight: 120,
@@ -158,35 +243,102 @@ class HomeScreenState extends State<HomeScreen> {
                 children: [
                   Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: AppColors.primary,
+                      // ✅ PROFILE MENU BUTTON
+                      PopupMenuButton<String>(
+                        offset: const Offset(0, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                         ),
-                      ),
-                      const SizedBox(width: AppDimensions.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'Xin chào,',
-                              style: AppTextStyles.caption.copyWith(
-                                color: Colors.white.withOpacity(0.9),
+                            const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.primary,
                               ),
                             ),
-                            Text(
-                              userName,
-                              style: AppTextStyles.h4.copyWith(
-                                color: Colors.white,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: AppDimensions.sm),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Xin chào,',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                                Text(
+                                  userName,
+                                  style: AppTextStyles.h4.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                              size: 20,
                             ),
                           ],
                         ),
+                        onSelected: _handleMenuSelection,
+                        itemBuilder: (context) => [
+                          // Thông tin cá nhân
+                          const PopupMenuItem(
+                            value: 'profile',
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.person_outline),
+                              title: Text('Thông tin cá nhân'),
+                              dense: true,
+                            ),
+                          ),
+                          
+                          // Lịch sử đặt phòng
+                          const PopupMenuItem(
+                            value: 'history',
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.history),
+                              title: Text('Lịch sử đặt phòng'),
+                              dense: true,
+                            ),
+                          ),
+                          
+                          // Đổi mật khẩu
+                          const PopupMenuItem(
+                            value: 'change_password',
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.lock_outline),
+                              title: Text('Đổi mật khẩu'),
+                              dense: true,
+                            ),
+                          ),
+                          
+                          const PopupMenuDivider(),
+                          
+                          // Đăng xuất
+                          const PopupMenuItem(
+                            value: 'logout',
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.logout, color: Colors.red),
+                              title: Text(
+                                'Đăng xuất',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              dense: true,
+                            ),
+                          ),
+                        ],
                       ),
+                      const Spacer(),
                       IconButton(
                         icon: const Icon(
                           Icons.notifications_outlined,
@@ -367,81 +519,6 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  /// Quick filters
-  Widget _buildQuickFilters() {
-    final filters = [
-      {'icon': Icons.single_bed, 'label': 'Phòng đơn'},
-      {'icon': Icons.king_bed, 'label': 'Phòng đôi'},
-      {'icon': Icons.weekend, 'label': 'Suite'},
-      {'icon': Icons.apartment, 'label': 'VIP'},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
-          child: Text(
-            'Lọc nhanh',
-            style: AppTextStyles.h3,
-          ),
-        ),
-        const SizedBox(height: AppDimensions.md),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
-            itemCount: filters.length,
-            itemBuilder: (context, index) {
-              final filter = filters[index];
-              return Container(
-                width: 90,
-                margin: const EdgeInsets.only(right: AppDimensions.md),
-                child: InkWell(
-                  onTap: () {
-                    // TODO: Filter by type
-                  },
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                  child: Container(
-                    padding: const EdgeInsets.all(AppDimensions.sm),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusMd,
-                      ),
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          filter['icon'] as IconData,
-                          color: AppColors.primary,
-                          size: 32,
-                        ),
-                        const SizedBox(height: AppDimensions.sm),
-                        Text(
-                          filter['label'] as String,
-                          style: AppTextStyles.caption.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 

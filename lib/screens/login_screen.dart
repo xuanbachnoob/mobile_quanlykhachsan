@@ -108,6 +108,10 @@ Future<void> _login() async {
     print('✅ User object created:');
     print('   - Makh: ${user.makh}');
     print('   - Hoten: ${user.hoten}');
+    print('   - Hoten: ${user.sdt}');
+    print('   - Hoten: ${user.cccd}');
+    print('   - Hoten: ${user.diemthanhvien}');
+
     print('   - Email: ${user.email}');
     print('   - Role: ${user.role}');
 

@@ -57,6 +57,8 @@ class Khachhang {
       hoten: json['hoten'] as String? ?? '',
       email: json['email'] as String?,
       sdt: json['sdt'] as String?,
+      cccd: json['cccd'] as String?,
+      diemthanhvien: json['diemthanhvien'] as int?,
       role: json['role'] as String?,
       token: json['token'] as String?,
     );
