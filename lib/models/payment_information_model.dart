@@ -1,12 +1,14 @@
 /// Model request tạo VNPay URL
 class PaymentInformationModel {
-  final String orderId;       // Mã hóa đơn (MAHOADON)
-  final double amount;        // Số tiền
+  final int orderId;       // Mã hóa đơn (MAHOADON)
+  final String orderType;
+  final int amount;        // Số tiền
   final String orderDescription; // Mô tả
   final String name;          // Tên người thanh toán (optional)
 
   PaymentInformationModel({
     required this.orderId,
+    required this.orderType,
     required this.amount,
     required this.orderDescription,
     this.name = '',
@@ -15,6 +17,7 @@ class PaymentInformationModel {
   Map<String, dynamic> toJson() {
     return {
       'orderId': orderId,
+      'orderType': orderType,
       'amount': amount,
       'orderDescription': orderDescription,
       'name': name,

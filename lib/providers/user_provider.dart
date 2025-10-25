@@ -1,24 +1,29 @@
-import 'package:flutter/material.dart';
-import '../models/khachhang.dart'; // Import model của bạn
+import 'package:flutter/foundation.dart';
+import '../models/khachhang.dart';
 
-class UserProvider with ChangeNotifier {
-  Khachhang? _currentUser;
+class UserProvider extends ChangeNotifier {
+  Khachhang? _user;
 
-  // Getter để các màn hình khác có thể truy cập thông tin người dùng
-  Khachhang? get currentUser => _currentUser;
+  Khachhang? get user => _user;
+  
+  // ✅ Alias để dễ dùng
+  Khachhang? get currentUser => _user;
 
-  // Kiểm tra xem người dùng đã đăng nhập hay chưa
-  bool get isLoggedIn => _currentUser != null;
-
-  // Hàm này được gọi khi đăng nhập thành công
   void setUser(Khachhang user) {
-    _currentUser = user;
-    notifyListeners(); // Thông báo cho toàn bộ ứng dụng biết "Người dùng đã đăng nhập"
+    _user = user;
+    print('✅ User set in provider:');
+    print('   - Makh: ${user.makh}');
+    print('   - Hoten: ${user.hoten}');
+    print('   - Email: ${user.email}');
+    print('   - Role: ${user.role}');
+    notifyListeners();
   }
 
-  // Hàm này được gọi khi đăng xuất
   void clearUser() {
-    _currentUser = null;
-    notifyListeners(); // Thông báo "Người dùng đã đăng xuất"
+    _user = null;
+    print('🗑️ User cleared from provider');
+    notifyListeners();
   }
+
+  bool get isLoggedIn => _user != null && _user!.makh != null;
 }

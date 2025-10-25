@@ -86,66 +86,78 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Future<void> _login() async {
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      return;
+Future<void> _login() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isLoading = true);
+
+  try {
+    print('🔐 Logging in with: ${_emailController.text.trim()} / ${_passwordController.text.trim()}');
+    
+    final response = await _authService.login(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    print('✅ Login API Response:');
+    print(response);
+
+    // ✅ Parse Khachhang from NEW login response
+    final user = Khachhang.fromLoginJson(response);
+    
+    print('✅ User object created:');
+    print('   - Makh: ${user.makh}');
+    print('   - Hoten: ${user.hoten}');
+    print('   - Email: ${user.email}');
+    print('   - Role: ${user.role}');
+
+    // Check if makh is available
+    if (user.makh == null) {
+      print('⚠️ Warning: makh is null in login response!');
     }
 
-    setState(() => _isLoading = true);
+    // ✅ Save to UserProvider
+    if (mounted) {
+      final userProvider = context.read<UserProvider>();
+      userProvider.setUser(user);
+      print('✅ User saved to provider');
+    }
 
-    try {
-      final result = await _authService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+    setState(() => _isLoading = false);
 
-      // Check role
-      if (result['role'] != 'customer') {
-        throw Exception(
-          'Tài khoản nhân viên không được phép đăng nhập trên ứng dụng này.',
-        );
-      }
-
-      // Lưu thông tin nếu "Ghi nhớ"
-      final prefs = await SharedPreferences.getInstance();
-      if (_rememberMe) {
-        await prefs.setString('emailOrSdt', _emailController.text.trim());
-        await prefs.setString('password', _passwordController.text);
-      } else {
-        await prefs.remove('emailOrSdt');
-        await prefs.remove('password');
-      }
-
-      // Tạo user model
-      final user = Khachhang.fromLoginResponse(
-        result,
-        _emailController.text.trim(),
-      );
-
-      if (!mounted) return;
-
-      // Lưu vào Provider
-      context.read<UserProvider>().setUser(user);
-
-      // Show success message
-      showSuccessMessage(context, 'Đăng nhập thành công!');
-
-      // Navigate to home
-      Navigator.of(context).pushReplacement(
+    // Navigate to home
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-    } catch (e) {
-      if (!mounted) return;
-      showErrorMessage(
-        context,
-        e.toString().replaceFirst('Exception: ', ''),
+    }
+
+  } catch (e) {
+    print('❌ Login error: $e');
+    
+    setState(() => _isLoading = false);
+    
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Lỗi đăng nhập'),
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+          ],
+        ),
       );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
+}
 
   @override
   void dispose() {

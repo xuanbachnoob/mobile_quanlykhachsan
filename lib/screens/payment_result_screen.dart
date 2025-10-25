@@ -9,8 +9,8 @@ import '../screens/home_screen.dart';
 /// Màn hình kết quả thanh toán
 class PaymentResultScreen extends StatelessWidget {
   final bool success;
-  final String orderId;
-  final double amount;
+  final int orderId;
+  final int amount;
   final String transactionRef;
   final String responseCode;
 
@@ -95,13 +95,13 @@ class PaymentResultScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildDetailRow('Mã đơn hàng', orderId),
+                      _buildDetailRow('Mã đơn hàng', orderId.toString()),
                       const Divider(height: AppDimensions.lg),
                       _buildDetailRow('Mã giao dịch', transactionRef.isNotEmpty ? transactionRef : '-'),
                       const Divider(height: AppDimensions.lg),
                       _buildDetailRow(
                         'Số tiền',
-                        '${CurrencyFormatter.format(amount.toInt())} VNĐ',
+                        '${CurrencyFormatter.format(amount)} VNĐ',
                         valueColor: AppColors.primary,
                       ),
                       const Divider(height: AppDimensions.lg),

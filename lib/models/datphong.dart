@@ -1,7 +1,6 @@
-/// Model đặt phòng
 class Datphong {
   final int? madatphong;
-  final DateTime ngaydat;
+  final DateTime? ngaydat;
   final DateTime ngaynhanphong;
   final DateTime ngaytraphong;
   final String? trangthai;
@@ -16,7 +15,7 @@ class Datphong {
 
   Datphong({
     this.madatphong,
-    required this.ngaydat,
+    this.ngaydat,
     required this.ngaynhanphong,
     required this.ngaytraphong,
     this.trangthai,
@@ -30,38 +29,39 @@ class Datphong {
     this.ngayhuy,
   });
 
+  /// ✅ toJson CHỈ GỬI: ngaynhanphong, ngaytraphong, makh, ghichu
   Map<String, dynamic> toJson() {
-    return {
-      'madatphong': madatphong,
-      'ngaydat': ngaydat.toIso8601String().split('T')[0], // YYYY-MM-DD
+    final Map<String, dynamic> json = {
       'ngaynhanphong': ngaynhanphong.toIso8601String().split('T')[0],
       'ngaytraphong': ngaytraphong.toIso8601String().split('T')[0],
-      'trangthai': trangthai,
-      'dongia': dongia,
-      'giamgia': giamgia,
-      'tongtien': tongtien,
-      'trangthaithanhtoan': trangthaithanhtoan,
-      'chinhsachhuy': chinhsachhuy,
-      'ghichu': ghichu,
       'makh': makh,
-      'ngayhuy': ngayhuy?.toIso8601String().split('T')[0],
     };
+
+    // Optional fields
+    if (ghichu != null && ghichu!.isNotEmpty) {
+      json['ghichu'] = ghichu;
+    }
+
+    print('📤 Datphong toJson (minimal):');
+    print(json);
+
+    return json;
   }
 
   factory Datphong.fromJson(Map<String, dynamic> json) {
     return Datphong(
-      madatphong: json['madatphong'],
-      ngaydat: DateTime.parse(json['ngaydat']),
+      madatphong: json['madatphong'] as int?,
+      ngaydat: json['ngaydat'] != null ? DateTime.parse(json['ngaydat']) : null,
       ngaynhanphong: DateTime.parse(json['ngaynhanphong']),
       ngaytraphong: DateTime.parse(json['ngaytraphong']),
-      trangthai: json['trangthai'],
-      dongia: json['dongia'],
-      giamgia: json['giamgia'],
-      tongtien: json['tongtien'],
-      trangthaithanhtoan: json['trangthaithanhtoan'],
-      chinhsachhuy: json['chinhsachhuy'],
-      ghichu: json['ghichu'],
-      makh: json['makh'],
+      trangthai: json['trangthai'] as String?,
+      dongia: json['dongia'] as int?,
+      giamgia: json['giamgia'] as int?,
+      tongtien: json['tongtien'] as int?,
+      trangthaithanhtoan: json['trangthaithanhtoan'] as String?,
+      chinhsachhuy: json['chinhsachhuy'] as String?,
+      ghichu: json['ghichu'] as String?,
+      makh: json['makh'] as int?,
       ngayhuy: json['ngayhuy'] != null ? DateTime.parse(json['ngayhuy']) : null,
     );
   }

@@ -760,22 +760,24 @@ void _confirmBooking(BuildContext context, BookingProvider booking) async {
 
     // 1. Datphong
     final datphong = Datphong(
-      ngaydat: DateTime.now(),
       ngaynhanphong: booking.checkInDate!,
       ngaytraphong: booking.checkOutDate!,
-      dongia: booking.roomsTotal.toInt(),
-      giamgia: 0,
-      tongtien: booking.grandTotal.toInt(),
       ghichu: 'Đặt qua mobile app',
       makh: makh,
     );
 
-    // 2. Room IDs
-    final roomIds = booking.selectedRooms
-        .map((r) => r.phong.Maphong)
-        .toList();
+    // 2. Rooms với tongcong
+    final nights = booking.checkOutDate!.difference(booking.checkInDate!).inDays;
+    final rooms = booking.selectedRooms.map((selectedRoom) {
+      final tongcong = selectedRoom.loaiphong.Giacoban * nights;
+      
+      return {
+        'maphong': selectedRoom.phong.Maphong,
+        'tongcong': tongcong,
+      };
+    }).toList();
 
-    // 3. Services (CHỈ GỬI madv và soluong)
+    // 3. Services
     final services = booking.selectedServices
         .map((s) => {
               'madv': s.dichvu.madv,
@@ -783,36 +785,39 @@ void _confirmBooking(BuildContext context, BookingProvider booking) async {
             })
         .toList();
 
-    print('✅ Data prepared:');
-    print('  - Rooms: ${roomIds.length}');
-    print('  - Services: ${services.length}');
-    print('  - Total: ${booking.grandTotal}');
-
+    
     // ===== CREATE BOOKING =====
-    print('\n🚀 Creating booking...');
-    final madatphong = await bookingApi.createFullBooking(
+    final result = await bookingApi.createFullBooking(
       datphong: datphong,
-      roomIds: roomIds,
+      rooms: rooms,
       services: services,
     );
 
-    print('✅ Booking created! Madatphong: $madatphong');
+    final madatphong = result['madatphong']!;
+    final mahoadon = result['mahoadon']!;
 
     // ===== CREATE PAYMENT URL =====
     print('\n💳 Creating payment URL...');
+    
+    // ✅ Sử dụng mahoadon làm orderId
     final paymentModel = PaymentInformationModel(
-      orderId: '$madatphong',
-      amount: booking.grandTotal.toDouble(),
+      orderId: mahoadon,
+      orderType: 'billpayment',
+      amount: booking.grandTotal.toInt(),
       orderDescription: 'Thanh toan dat phong khach san',
       name: userProvider.currentUser?.hoten ?? 'Khach hang',
     );
+
+    print('   - OrderId (mahoadon): $mahoadon');
+    print('   - Amount: ${booking.grandTotal}');
 
     final paymentResponse = await paymentApi.createVnPayUrl(paymentModel);
     print('✅ Payment URL created');
 
     // Close loading
     Navigator.pop(context);
-
+    final totalAmount = booking.grandTotal.toInt();
+    final orderId = mahoadon;
     // Clear booking data
     booking.clearAll();
     context.read<BookingCartProvider>().clear();
@@ -823,8 +828,8 @@ void _confirmBooking(BuildContext context, BookingProvider booking) async {
       MaterialPageRoute(
         builder: (_) => PaymentWebViewScreen(
           paymentUrl: paymentResponse.url,
-          orderId: 'HD$madatphong',
-          amount: booking.grandTotal.toDouble(),
+          orderId: orderId,
+          amount: totalAmount,
         ),
       ),
     );

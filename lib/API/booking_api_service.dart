@@ -10,10 +10,6 @@ class BookingApiService {
   /// 1. Tạo đặt phòng
   Future<Datphong> createDatphong(Datphong datphong) async {
     final url = Uri.parse('${ApiConfig.baseUrl}/Datphongs');
-
-    print('📤 Creating Datphong...');
-    print('Request: ${json.encode(datphong.toJson())}');
-
     try {
       final response = await http.post(
         url,
@@ -37,7 +33,7 @@ class BookingApiService {
 
   /// 2. Tạo chi tiết đặt phòng
   Future<void> createChitietdatphong(Chitietdatphong chitiet) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/Chitietdatphongs');
+    final url = Uri.parse('${ApiConfig.chitietDatphongEndpoint}/mobile');
 
     print('📤 Creating Chitietdatphong...');
     print('Request: ${json.encode(chitiet.toJson())}');
@@ -63,27 +59,18 @@ class BookingApiService {
   /// 3. Tạo sử dụng dịch vụ (Stored Procedure tự tính toán)
   Future<void> createSudungdv(Sudungdv sudungdv) async {
     final url = Uri.parse('${ApiConfig.baseUrl}/Sudungdvs/sudungdv');
-
-    print('📤 Creating Sudungdv...');
-    
     // ✅ CHỈ GỬI 3 FIELDS: madatphong, madv, soluong
     final requestBody = {
       'madatphong': sudungdv.madatphong,
       'madv': sudungdv.madv,
       'soluong': sudungdv.soluong,
     };
-    
-    print('Request: ${json.encode(requestBody)}');
-
     try {
       final response = await http.post(
         url,
         headers: ApiConfig.headers,
         body: json.encode(requestBody),
       ).timeout(ApiConfig.connectionTimeout);
-
-      print('📡 Response: ${response.statusCode}');
-      print('📦 Body: ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Không thể tạo sử dụng dịch vụ. Mã lỗi: ${response.statusCode}');
@@ -95,102 +82,72 @@ class BookingApiService {
   }
 
   /// 4. Tạo hóa đơn (Stored Procedure)
-  Future<void> createHoadon() async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/Hoadons/taohoadon');
-
-    print('📤 Creating Hoadon...');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-      ).timeout(ApiConfig.connectionTimeout);
-
-      print('📡 Response: ${response.statusCode}');
-      print('📦 Body: ${response.body}');
-
-      if (response.statusCode != 200) {
-        throw Exception('Không thể tạo hóa đơn. Mã lỗi: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('❌ Error creating Hoadon: $e');
-      throw Exception('Lỗi kết nối: $e');
+ Future<int> createHoadon() async {
+  final url = Uri.parse('${ApiConfig.hoadonEndpoint}/taohoadon');
+    final response = await http.post(
+      url,
+      headers: ApiConfig.headers,
+    ).timeout(ApiConfig.connectionTimeout);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['mahoadon'];
+    } else {
+      throw Exception('Không thể tạo hóa đơn. Mã lỗi: ${response.statusCode}');
     }
-  }
+}
 
   /// 5. FULL FLOW: Tạo booking hoàn chỉnh
-  Future<int> createFullBooking({
-    required Datphong datphong,
-    required List<int> roomIds, // List maphong
-    required List<Map<String, int>> services, // List {madv, soluong}
-  }) async {
-    try {
-      print('🚀 ===== STARTING FULL BOOKING FLOW =====');
+  Future<Map<String, int>> createFullBooking({
+  required Datphong datphong,
+  required List<Map<String, dynamic>> rooms,
+  required List<Map<String, int>> services,
+}) async {
+  try {
+    print('🚀 ===== STARTING FULL BOOKING FLOW =====');
 
-      // ===== STEP 1: TẠO ĐẶT PHÒNG =====
-      print('\n📝 STEP 1: Creating Datphong...');
-      final createdDatphong = await createDatphong(datphong);
-      final madatphong = createdDatphong.madatphong!;
-      print('✅ Created Datphong with ID: $madatphong');
+    // STEP 1: Tạo đặt phòng
+    print('\n📝 STEP 1: Creating Datphong...');
+    final createdDatphong = await createDatphong(datphong);
+    final madatphong = createdDatphong.madatphong!;
+    print('✅ Created Datphong with ID: $madatphong');
 
-      // ===== STEP 2: TẠO CHI TIẾT ĐẶT PHÒNG =====
-      print('\n🏨 STEP 2: Creating Chitietdatphong for ${roomIds.length} room(s)...');
-      for (int i = 0; i < roomIds.length; i++) {
-        final maphong = roomIds[i];
-        print('  Creating ${i + 1}/${roomIds.length}: Room ID $maphong');
-        
-        await createChitietdatphong(
-          Chitietdatphong(
+    // STEP 2: Tạo chi tiết đặt phòng
+
+    for (var room in rooms) {
+      await createChitietdatphong(
+        Chitietdatphong(
+          madatphong: madatphong,
+          maphong: room['maphong'] as int,
+          tongcong: room['tongcong'] as int,
+          trangthai: 'Đã đặt',
+        ),
+      );
+    }
+
+    final mahoadon = await createHoadon();
+
+    // STEP 3: Tạo sử dụng dịch vụ
+    if (services.isNotEmpty) {
+
+      for (var service in services) {
+        await createSudungdv(
+          Sudungdv(
             madatphong: madatphong,
-            maphong: maphong,
+            madv: service['madv']!,
+            soluong: service['soluong']!,
           ),
         );
-        
-        print('  ✅ Created Chitietdatphong for room $maphong');
-      }
-      print('✅ All Chitietdatphong created successfully!');
-
-      // ===== STEP 3: TẠO SỬ DỤNG DỊCH VỤ =====
-      if (services.isNotEmpty) {
-        print('\n🎁 STEP 3: Creating Sudungdv for ${services.length} service(s)...');
-        
-        for (int i = 0; i < services.length; i++) {
-          final service = services[i];
-          final madv = service['madv']!;
-          final soluong = service['soluong']!;
-          
-          print('  Creating ${i + 1}/${services.length}: Service ID $madv (Qty: $soluong)');
-          
-          await createSudungdv(
-            Sudungdv(
-              madatphong: madatphong,
-              madv: madv,
-              soluong: soluong,
-            ),
-          );
-          
-          print('  ✅ Created Sudungdv for service $madv');
-        }
-        
-        print('✅ All Sudungdv created successfully!');
-      } else {
-        print('\n⏭️  STEP 3: No services selected, skipping...');
       }
 
-      // ===== STEP 4: TẠO HÓA ĐƠN =====
-      print('\n🧾 STEP 4: Creating Hoadon...');
-      await createHoadon();
-      print('✅ Hoadon created successfully!');
-
-      print('\n🎉 ===== FULL BOOKING FLOW COMPLETED =====');
-      print('📌 Madatphong: $madatphong\n');
-      
-      return madatphong;
-      
-    } catch (e) {
-      print('\n❌ ===== BOOKING FLOW FAILED =====');
-      print('Error: $e\n');
-      rethrow;
     }
+
+    return {
+      'madatphong': madatphong,
+      'mahoadon': mahoadon,
+    };
+    
+  } catch (e) {
+    rethrow;
   }
+}
 }
