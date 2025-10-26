@@ -101,7 +101,7 @@ class HomeScreenState extends State<HomeScreen> {
     final cart = context.read<BookingCartProvider>();
     cart.updateSearchCriteria(_checkInDate, _checkOutDate);
 
-    final searchFuture = _apiService.timVaLayThongTinPhongDayDu(
+    final searchFuture = _apiService.timVaNhomPhongTheoLoai(
       _checkInDate,
       _checkOutDate,
     );

@@ -764,6 +764,8 @@ void _confirmBooking(BuildContext context, BookingProvider booking) async {
       ngaytraphong: booking.checkOutDate!,
       ghichu: 'Đặt qua mobile app',
       makh: makh,
+      trangthai: 'Đã hủy',
+      trangthaithanhtoan: 'Chưa thanh toán',
     );
 
     // 2. Rooms với tongcong

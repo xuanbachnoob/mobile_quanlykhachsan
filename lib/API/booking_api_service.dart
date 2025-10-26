@@ -119,7 +119,7 @@ class BookingApiService {
           madatphong: madatphong,
           maphong: room['maphong'] as int,
           tongcong: room['tongcong'] as int,
-          trangthai: 'Đã đặt',
+          trangthai: 'Đã hủy',
         ),
       );
     }

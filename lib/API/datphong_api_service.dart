@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_quanlykhachsan/models/loaiphong_grouped.dart';
 import '../config/api_config.dart';
 import '../models/hinhanhphong.dart';
 import '../models/loaiphong.dart';
@@ -148,4 +149,64 @@ class DatPhongApiService {
       throw Exception('Không thể tải hình ảnh: $e');
     }
   }
+
+  /// Tìm và nhóm phòng theo loại phòng
+Future<List<LoaiphongGrouped>> timVaNhomPhongTheoLoai(
+  DateTime checkin,
+  DateTime checkout,
+) async {
+  // Bước 1: Lấy danh sách phòng trống
+  final List<Phong> phongTrong = await _timPhongGoc(checkin, checkout);
+
+  if (phongTrong.isEmpty) {
+    return [];
+  }
+
+  // Bước 2: Lấy tất cả loại phòng và hình ảnh
+  final List<Loaiphong> tatCaLoaiPhong = await getLoaiPhongs();
+  final List<Hinhanhphong> hinhanhphong = await getHinhphong();
+
+  // Bước 3: Tạo Map để tra cứu nhanh
+  final Map<int, Loaiphong> loaiPhongMap = {
+    for (var lp in tatCaLoaiPhong) lp.Maloaiphong: lp
+  };
+  final Map<int, Hinhanhphong> hinhanhphongMap = {
+    for (var hp in hinhanhphong) hp.Mahinhphong: hp
+  };
+
+  // Bước 4: ✅ NHÓM PHÒNG THEO LOẠI
+  final Map<int, List<Phong>> phongTheoLoai = {};
+  
+  for (var p in phongTrong) {
+    if (!phongTheoLoai.containsKey(p.Maloaiphong)) {
+      phongTheoLoai[p.Maloaiphong] = [];
+    }
+    phongTheoLoai[p.Maloaiphong]!.add(p);
+  }
+
+  // Bước 5: ✅ TẠO DANH SÁCH NHÓM
+  List<LoaiphongGrouped> ketQua = [];
+  
+  phongTheoLoai.forEach((maloaiphong, danhsachphong) {
+    final loaiPhong = loaiPhongMap[maloaiphong];
+    
+    // Lấy hình ảnh từ phòng đầu tiên (giả sử cùng loại có cùng hình)
+    final mahinhphong = danhsachphong.first.Mahinhphong;
+    final hinhAnh = hinhanhphongMap[mahinhphong];
+    
+    if (loaiPhong != null && hinhAnh != null) {
+      ketQua.add(LoaiphongGrouped(
+        loaiphong: loaiPhong,
+        hinhanhphong: hinhAnh,
+        soluongtrong: danhsachphong.length,
+        danhsachphong: danhsachphong,
+      ));
+    }
+  });
+
+  // Sort theo tên loại phòng
+  ketQua.sort((a, b) => a.loaiphong.Tenloaiphong.compareTo(b.loaiphong.Tenloaiphong));
+
+  return ketQua;
+}
 }

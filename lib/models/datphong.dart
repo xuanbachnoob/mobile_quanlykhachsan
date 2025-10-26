@@ -35,6 +35,8 @@ class Datphong {
       'ngaynhanphong': ngaynhanphong.toIso8601String().split('T')[0],
       'ngaytraphong': ngaytraphong.toIso8601String().split('T')[0],
       'makh': makh,
+      'trangthai': trangthai,
+      'trangthaithanhtoan': trangthaithanhtoan,
     };
 
     // Optional fields
