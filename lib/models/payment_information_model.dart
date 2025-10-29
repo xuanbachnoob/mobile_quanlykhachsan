@@ -5,6 +5,7 @@ class PaymentInformationModel {
   final int amount;        // Số tiền
   final String orderDescription; // Mô tả
   final String name;          // Tên người thanh toán (optional)
+  final String platform = 'mobile';
 
   PaymentInformationModel({
     required this.orderId,
@@ -21,6 +22,7 @@ class PaymentInformationModel {
       'amount': amount,
       'orderDescription': orderDescription,
       'name': name,
+      'platform': platform,
     };
   }
 }

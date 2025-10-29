@@ -37,27 +37,27 @@ class PaymentApiService {
     }
   }
 
- Future<void> confirmPayment(int mahd, int amount) async {
-  final url = Uri.parse(
-    '${ApiConfig.baseUrl}/Payment/confirm-payment-success',
-  ).replace(queryParameters: {
-    'mahd': mahd.toString(),
-    'Amount': amount.toString(),
-  });
-  try {
-    final response = await http.get(url).timeout(ApiConfig.connectionTimeout);
+//  Future<void> confirmPayment(int mahd, int amount) async {
+//   final url = Uri.parse(
+//     '${ApiConfig.baseUrl}/Payment/confirm-payment-success',
+//   ).replace(queryParameters: {
+//     'mahd': mahd.toString(),
+//     'Amount': amount.toString(),
+//   });
+//   try {
+//     final response = await http.get(url).timeout(ApiConfig.connectionTimeout);
 
-    print('Response ${response.statusCode}: ${response.body}\n');
+//     print('Response ${response.statusCode}: ${response.body}\n');
 
-    if (response.statusCode == 200) {
-      print('✅ Payment confirmed!\n');
-      return; // ✅ Không cần parse response
-    } else {
-      throw Exception('HTTP ${response.statusCode}: ${response.body}');
-    }
-  } catch (e) {
-    print('❌ Confirm error: $e\n');
-    rethrow;
-  }
-}
+//     if (response.statusCode == 200) {
+//       print('✅ Payment confirmed!\n');
+//       return; // ✅ Không cần parse response
+//     } else {
+//       throw Exception('HTTP ${response.statusCode}: ${response.body}');
+//     }
+//   } catch (e) {
+//     print('❌ Confirm error: $e\n');
+//     rethrow;
+//   }
+// }
 }

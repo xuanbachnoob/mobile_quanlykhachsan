@@ -60,7 +60,13 @@ class _RoomCardState extends State<RoomCard>
     final cart = context.watch<BookingCartProvider>();
     final isSelected = cart.isRoomSelected(widget.item.phong.Maphong);
     final imageUrls = widget.item.hinhanhphong.imageUrls;
+    if (cart.discountPercentage > 0) {
+  print('Giảm ${cart.discountPercentage * 100}%');
+  print('Tiết kiệm: ${cart.discountAmount} VNĐ');
+}
 
+// Hiển thị message
+Text(cart.discountMessage);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,

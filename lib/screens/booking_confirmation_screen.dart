@@ -25,10 +25,7 @@ class BookingConfirmationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Thông tin đặt phòng'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Thông tin đặt phòng'), elevation: 0),
       body: Consumer<BookingProvider>(
         builder: (context, booking, child) {
           return SingleChildScrollView(
@@ -72,12 +69,9 @@ class BookingConfirmationScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Thông tin tìm kiếm',
-            style: AppTextStyles.h4,
-          ),
+          Text('Thông tin tìm kiếm', style: AppTextStyles.h4),
           const SizedBox(height: AppDimensions.md),
-          
+
           // Check-in date
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,9 +87,9 @@ class BookingConfirmationScreen extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: AppDimensions.sm),
-          
+
           // Guest count
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -137,20 +131,16 @@ class BookingConfirmationScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Phòng đã chọn', style: AppTextStyles.h4),
-              Icon(
-                Icons.expand_more,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
+              Icon(Icons.expand_more, color: AppColors.textSecondary, size: 20),
             ],
           ),
           const SizedBox(height: AppDimensions.md),
-          
+
           // Room list
           ...booking.selectedRooms.asMap().entries.map((entry) {
             final index = entry.key;
             final room = entry.value;
-            
+
             return Container(
               margin: EdgeInsets.only(
                 bottom: index < booking.selectedRooms.length - 1
@@ -191,7 +181,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   // Room number
                   Text(
                     'Phòng ${room.phong.Sophong}',
@@ -199,9 +189,9 @@ class BookingConfirmationScreen extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  
+
                   const SizedBox(height: AppDimensions.sm),
-                  
+
                   // Price
                   Text(
                     '${CurrencyFormatter.format(room.loaiphong.Giacoban)} VNĐ / phòng',
@@ -287,14 +277,14 @@ class BookingConfirmationScreen extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: AppDimensions.md),
-          
+
           // Services list
           ...booking.selectedServices.asMap().entries.map((entry) {
             final index = entry.key;
             final service = entry.value;
-            
+
             return Container(
               margin: EdgeInsets.only(
                 bottom: index < booking.selectedServices.length - 1
@@ -334,9 +324,9 @@ class BookingConfirmationScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(width: AppDimensions.md),
-                  
+
                   // Quantity controls and price
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -379,7 +369,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          
+
                           // Quantity
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -392,7 +382,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          
+
                           // Increase button
                           InkWell(
                             onTap: () {
@@ -429,98 +419,364 @@ class BookingConfirmationScreen extends StatelessWidget {
     );
   }
 
-  /// Summary
+  /// Summary với Discount
   Widget _buildSummary(BookingProvider booking) {
-    return Container(
-      margin: const EdgeInsets.all(AppDimensions.md),
-      padding: const EdgeInsets.all(AppDimensions.lg),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.primary, width: 2),
-      ),
-      child: Column(
-        children: [
-          // Room count
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Tổng phòng:', style: AppTextStyles.body2),
-              Text(
-                '${booking.selectedRooms.length} phòng',
-                style: AppTextStyles.body1.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+    return Consumer<BookingCartProvider>(
+      builder: (context, cart, child) {
+        return Container(
+          margin: const EdgeInsets.all(AppDimensions.md),
+          padding: const EdgeInsets.all(AppDimensions.lg),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(color: AppColors.primary, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          
-          const SizedBox(height: AppDimensions.sm),
-          
-          // Number of nights
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Số đêm:', style: AppTextStyles.body2),
-              Text(
-                '${booking.numberOfNights} đêm',
-                style: AppTextStyles.body1.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          
-          // Show breakdown if has services
-          if (booking.selectedServices.isNotEmpty) ...[
-            const Divider(height: AppDimensions.lg),
-            
-            // Room price
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Tiền phòng:', style: AppTextStyles.body2),
-                Text(
-                  '${CurrencyFormatter.format(booking.roomsTotal.toInt())} VNĐ',
-                  style: AppTextStyles.body1.copyWith(
-                    fontWeight: FontWeight.w600,
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // ✅ DISCOUNT BANNER (NẾU CÓ GIẢM GIÁ)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              if (cart.discountPercentage > 0) ...[
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.md),
+                  margin: const EdgeInsets.only(bottom: AppDimensions.md),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.green[400]!, Colors.green[600]!],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  ),
+                  child: Row(
+                    children: [
+                      // Icon
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            cart.discountIcon,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: AppDimensions.md),
+
+                      // Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              cart.discountMessage,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Tiết kiệm ${CurrencyFormatter.format(cart.discountAmount)} VNĐ',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Percentage badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '-${(cart.discountPercentage * 100).toInt()}%',
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-            
-            const SizedBox(height: AppDimensions.sm),
-            
-            // Service price
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Tiền dịch vụ:', style: AppTextStyles.body2),
-                Text(
-                  '${CurrencyFormatter.format(booking.servicesTotal.toInt())} VNĐ',
-                  style: AppTextStyles.body1.copyWith(
-                    fontWeight: FontWeight.w600,
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // ✅ DISCOUNT PROGRESS (NẾU GẦN ĐẠT MỨC)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              if (cart.nextDiscountTier != null &&
+                  cart.discountPercentage == 0) ...[
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.sm),
+                  margin: const EdgeInsets.only(bottom: AppDimensions.md),
+                  decoration: BoxDecoration(
+                    color: Colors.orange[50],
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    border: Border.all(color: Colors.orange[200]!),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.orange[700],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Đặt thêm ${cart.roomsNeededForNextTier} phòng để giảm ${cart.nextDiscountTier!.percentage}%',
+                              style: TextStyle(
+                                color: Colors.orange[900],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: LinearProgressIndicator(
+                          value: cart.progressToNextTier,
+                          minHeight: 5,
+                          backgroundColor: Colors.orange[100],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.orange[600]!,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${cart.roomCount}/${cart.nextDiscountTier!.minRooms} phòng',
+                        style: TextStyle(
+                          color: Colors.orange[700],
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ],
-          
-          const Divider(height: AppDimensions.lg),
-          
-          // Grand total
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Tổng cộng', style: AppTextStyles.h3),
-              Text(
-                '${CurrencyFormatter.format(booking.grandTotal.toInt())} VNĐ',
-                style: AppTextStyles.price.copyWith(fontSize: 20),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // ✅ THÔNG TIN Cơ BẢN
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+              // Tổng phòng
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Tổng phòng:', style: AppTextStyles.body2),
+                  Text(
+                    '${booking.selectedRooms.length} phòng',
+                    style: AppTextStyles.body1.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
+
+              const SizedBox(height: AppDimensions.sm),
+
+              // Số đêm
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Số đêm:', style: AppTextStyles.body2),
+                  Text(
+                    '${booking.numberOfNights} đêm',
+                    style: AppTextStyles.body1.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // ✅ CHI TIẾT GIÁ (NẾU CÓ DỊCH VỤ HOẶC GIẢM GIÁ)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              if (booking.selectedServices.isNotEmpty ||
+                  cart.discountPercentage > 0) ...[
+                const Divider(height: AppDimensions.lg),
+
+                // Tiền phòng
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Tiền phòng:', style: AppTextStyles.body2),
+                    Text(
+                      '${CurrencyFormatter.format(booking.roomsTotal.toInt())} VNĐ',
+                      style: AppTextStyles.body1.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Tiền dịch vụ (nếu có)
+                if (booking.selectedServices.isNotEmpty) ...[
+                  const SizedBox(height: AppDimensions.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Tiền dịch vụ:', style: AppTextStyles.body2),
+                      Text(
+                        '${CurrencyFormatter.format(booking.servicesTotal.toInt())} VNĐ',
+                        style: AppTextStyles.body1.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // ✅ TẠM TÍNH (TỔNG TRƯỚC GIẢM GIÁ)
+                if (cart.discountPercentage > 0) ...[
+                  const SizedBox(height: AppDimensions.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Tạm tính:', style: AppTextStyles.body2),
+                      Text(
+                        '${CurrencyFormatter.format(cart.subtotal)} VNĐ',
+                        style: AppTextStyles.body1.copyWith(
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.lineThrough,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // ✅ GIẢM GIÁ
+                if (cart.discountPercentage > 0) ...[
+                  const SizedBox(height: AppDimensions.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Giảm giá ',
+                            style: AppTextStyles.body2.copyWith(
+                              color: Colors.green[700],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '-${(cart.discountPercentage * 100).toInt()}%',
+                              style: TextStyle(
+                                color: Colors.green[800],
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '-${CurrencyFormatter.format(cart.discountAmount)} VNĐ',
+                        style: AppTextStyles.body1.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              // ✅ TỔNG CỘNG (SAU GIẢM GIÁ)
+              // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              const Divider(height: AppDimensions.lg),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Tổng cộng', style: AppTextStyles.h3),
+                  Text(
+                    '${CurrencyFormatter.format(cart.totalPrice)} VNĐ',
+                    style: AppTextStyles.price.copyWith(fontSize: 20),
+                  ),
+                ],
+              ),
+
+              // ✅ NOTE TIẾT KIỆM (NẾU CÓ GIẢM GIÁ)
+              if (cart.discountPercentage > 0) ...[
+                const SizedBox(height: AppDimensions.sm),
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.sm),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green[700],
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Bạn đã tiết kiệm ${CurrencyFormatter.format(cart.discountAmount)} VNĐ!',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[800],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -553,10 +809,10 @@ class BookingConfirmationScreen extends StatelessWidget {
   void _removeRoom(BuildContext context, int maphong) {
     final cart = context.read<BookingCartProvider>();
     final booking = context.read<BookingProvider>();
-    
+
     cart.removeRoom(maphong);
     booking.setSelectedRooms(cart.selectedRooms);
-    
+
     if (cart.selectedRooms.isEmpty) {
       Navigator.pop(context);
       showInfoMessage(context, 'Không còn phòng nào được chọn');
@@ -574,7 +830,9 @@ class BookingConfirmationScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Xóa tất cả dịch vụ'),
-        content: const Text('Bạn có chắc chắn muốn xóa tất cả dịch vụ đã chọn?'),
+        content: const Text(
+          'Bạn có chắc chắn muốn xóa tất cả dịch vụ đã chọn?',
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
@@ -589,294 +847,425 @@ class BookingConfirmationScreen extends StatelessWidget {
               Navigator.pop(context);
               showSuccessMessage(context, 'Đã xóa tất cả dịch vụ');
             },
-            child: const Text(
-              'Xóa',
-              style: TextStyle(color: AppColors.error),
-            ),
+            child: const Text('Xóa', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
     );
   }
 
-/// Confirm booking và tạo payment
-void _confirmBooking(BuildContext context, BookingProvider booking) async {
-  // Get user info
-  final userProvider = context.read<UserProvider>();
-  final makh = userProvider.currentUser?.makh;
+  /// Confirm booking và tạo payment
+  void _confirmBooking(BuildContext context, BookingProvider booking) async {
+    // Get user info
+    final userProvider = context.read<UserProvider>();
+    final makh = userProvider.currentUser?.makh;
 
-  if (makh == null) {
-    showDialog(
+    if (makh == null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Lỗi'),
+          content: const Text('Vui lòng đăng nhập để đặt phòng'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Validation
+    if (booking.selectedRooms.isEmpty) {
+      showErrorMessage(context, 'Vui lòng chọn ít nhất 1 phòng');
+      return;
+    }
+
+    if (booking.checkInDate == null || booking.checkOutDate == null) {
+      showErrorMessage(context, 'Vui lòng chọn ngày nhận phòng và trả phòng');
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lỗi'),
-        content: const Text('Vui lòng đăng nhập để đặt phòng'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+      builder: (context) {
+        // ✅ LẤY CART PROVIDER
+        final cart = Provider.of<BookingCartProvider>(context, listen: false);
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                color: AppColors.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Xác nhận đặt phòng',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-    return;
-  }
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ QUESTION
+              Text(
+                'Bạn có chắc chắn muốn đặt ${booking.selectedRooms.length} phòng?',
+                style: AppTextStyles.body1,
+              ),
 
-  // Validation
-  if (booking.selectedRooms.isEmpty) {
-    showErrorMessage(context, 'Vui lòng chọn ít nhất 1 phòng');
-    return;
-  }
+              const SizedBox(height: AppDimensions.md),
 
-  if (booking.checkInDate == null || booking.checkOutDate == null) {
-    showErrorMessage(context, 'Vui lòng chọn ngày nhận phòng và trả phòng');
-    return;
-  }
-
-  // Show confirmation dialog
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Xác nhận đặt phòng'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bạn có chắc chắn muốn đặt ${booking.selectedRooms.length} phòng?',
-            style: AppTextStyles.body1,
-          ),
-          const SizedBox(height: AppDimensions.md),
-          Container(
-            padding: const EdgeInsets.all(AppDimensions.sm),
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // ✅ PRICE BREAKDOWN BOX
+              Container(
+                padding: const EdgeInsets.all(AppDimensions.md),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
                   children: [
-                    Text('Tiền phòng:', style: AppTextStyles.body2),
-                    Text(
-                      '${CurrencyFormatter.format(booking.roomsTotal.toInt())} VNĐ',
-                      style: AppTextStyles.body2.copyWith(
-                        fontWeight: FontWeight.w600,
+                    // ━━━ TIỀN PHÒNG ━━━
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Tiền phòng:', style: AppTextStyles.body2),
+                        Text(
+                          '${CurrencyFormatter.format(booking.roomsTotal.toInt())} VNĐ',
+                          style: AppTextStyles.body2.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // ━━━ TIỀN DỊCH VỤ (NẾU CÓ) ━━━
+                    if (booking.selectedServices.isNotEmpty) ...[
+                      const SizedBox(height: AppDimensions.xs),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Tiền dịch vụ:', style: AppTextStyles.body2),
+                          Text(
+                            '${CurrencyFormatter.format(booking.servicesTotal.toInt())} VNĐ',
+                            style: AppTextStyles.body2.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
+                    ],
+
+                    // ━━━ TẠM TÍNH (NẾU CÓ GIẢM GIÁ) ━━━
+                    if (cart.discountPercentage > 0) ...[
+                      const SizedBox(height: AppDimensions.xs),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Tạm tính:', style: AppTextStyles.body2),
+                          Text(
+                            '${CurrencyFormatter.format(cart.subtotal)} VNĐ',
+                            style: AppTextStyles.body2.copyWith(
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.lineThrough,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    // ━━━ GIẢM GIÁ ━━━
+                    if (cart.discountPercentage > 0) ...[
+                      const SizedBox(height: AppDimensions.xs),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Giảm giá ',
+                                style: AppTextStyles.body2.copyWith(
+                                  color: Colors.green[700],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[100],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '-${(cart.discountPercentage * 100).toInt()}%',
+                                  style: TextStyle(
+                                    color: Colors.green[800],
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '-${CurrencyFormatter.format(cart.discountAmount)} VNĐ',
+                            style: AppTextStyles.body2.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    // ━━━ DIVIDER ━━━
+                    const Divider(height: AppDimensions.md),
+
+                    // ━━━ TỔNG TIỀN (SAU GIẢM GIÁ) ━━━
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tổng tiền:',
+                          style: AppTextStyles.body1.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${CurrencyFormatter.format(cart.totalPrice)} VNĐ',
+                          style: AppTextStyles.body1.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                if (booking.selectedServices.isNotEmpty) ...[
-                  const SizedBox(height: AppDimensions.xs),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+
+              // ✅ NOTE TIẾT KIỆM (NẾU CÓ GIẢM GIÁ)
+              if (cart.discountPercentage > 0) ...[
+                const SizedBox(height: AppDimensions.sm),
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.sm),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Tiền dịch vụ:', style: AppTextStyles.body2),
-                      Text(
-                        '${CurrencyFormatter.format(booking.servicesTotal.toInt())} VNĐ',
-                        style: AppTextStyles.body2.copyWith(
-                          fontWeight: FontWeight.w600,
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green[700],
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Bạn đã tiết kiệm ${CurrencyFormatter.format(cart.discountAmount)} VNĐ!',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.green[800],
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-                const Divider(height: AppDimensions.md),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Tổng tiền:', style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.bold)),
-                    Text(
-                      '${CurrencyFormatter.format(booking.grandTotal.toInt())} VNĐ',
-                      style: AppTextStyles.body1.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
                 ),
               ],
-            ),
+            ],
           ),
-        ],
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Hủy'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('Xác nhận'),
-        ),
-      ],
-    ),
-  );
-
-  if (confirmed != true) return;
-
-  // Show loading
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => WillPopScope(
-      onWillPop: () async => false,
-      child: const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(AppDimensions.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: AppDimensions.md),
-                Text('Đang xử lý đặt phòng...'),
-                SizedBox(height: AppDimensions.xs),
-                Text(
-                  'Vui lòng không tắt ứng dụng',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
                 ),
-              ],
+              ),
+              child: const Text('Xác nhận'),
             ),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  try {
-    final bookingApi = BookingApiService();
-    final paymentApi = PaymentApiService();
-
-    // ===== PREPARE DATA =====
-    print('📋 Preparing booking data...');
-
-    // 1. Datphong
-    final datphong = Datphong(
-      ngaynhanphong: booking.checkInDate!,
-      ngaytraphong: booking.checkOutDate!,
-      ghichu: 'Đặt qua mobile app',
-      makh: makh,
-      trangthai: 'Đã hủy',
-      trangthaithanhtoan: 'Chưa thanh toán',
+          ],
+        );
+      },
     );
 
-    // 2. Rooms với tongcong
-    final nights = booking.checkOutDate!.difference(booking.checkInDate!).inDays;
-    final rooms = booking.selectedRooms.map((selectedRoom) {
-      final tongcong = selectedRoom.loaiphong.Giacoban * nights;
-      
-      return {
-        'maphong': selectedRoom.phong.Maphong,
-        'tongcong': tongcong,
-      };
-    }).toList();
+    if (confirmed != true) return;
 
-    // 3. Services
-    final services = booking.selectedServices
-        .map((s) => {
-              'madv': s.dichvu.madv,
-              'soluong': s.soluong,
-            })
-        .toList();
-
-    
-    // ===== CREATE BOOKING =====
-    final result = await bookingApi.createFullBooking(
-      datphong: datphong,
-      rooms: rooms,
-      services: services,
-    );
-
-    final madatphong = result['madatphong']!;
-    final mahoadon = result['mahoadon']!;
-
-    // ===== CREATE PAYMENT URL =====
-    print('\n💳 Creating payment URL...');
-    
-    // ✅ Sử dụng mahoadon làm orderId
-    final paymentModel = PaymentInformationModel(
-      orderId: mahoadon,
-      orderType: 'billpayment',
-      amount: booking.grandTotal.toInt(),
-      orderDescription: 'Thanh toan dat phong khach san',
-      name: userProvider.currentUser?.hoten ?? 'Khach hang',
-    );
-
-    print('   - OrderId (mahoadon): $mahoadon');
-    print('   - Amount: ${booking.grandTotal}');
-
-    final paymentResponse = await paymentApi.createVnPayUrl(paymentModel);
-    print('✅ Payment URL created');
-
-    // Close loading
-    Navigator.pop(context);
-    final totalAmount = booking.grandTotal.toInt();
-    final orderId = mahoadon;
-    // Clear booking data
-    booking.clearAll();
-    context.read<BookingCartProvider>().clear();
-
-    // Navigate to payment WebView
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PaymentWebViewScreen(
-          paymentUrl: paymentResponse.url,
-          orderId: orderId,
-          amount: totalAmount,
-        ),
-      ),
-    );
-    
-  } catch (e) {
-    print('❌ Booking failed: $e');
-
-    // Close loading
-    Navigator.pop(context);
-
-    // Show error
+    // Show loading
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lỗi'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Không thể tạo đặt phòng:'),
-            const SizedBox(height: AppDimensions.sm),
-            Container(
-              padding: const EdgeInsets.all(AppDimensions.sm),
-              decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppDimensions.lg),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: AppDimensions.md),
+                  Text('Đang xử lý đặt phòng...'),
+                  SizedBox(height: AppDimensions.xs),
+                  Text(
+                    'Vui lòng không tắt ứng dụng',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                e.toString(),
-                style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final bookingApi = BookingApiService();
+      final paymentApi = PaymentApiService();
+      final cart = context.read<BookingCartProvider>();
+      // ===== PREPARE DATA =====
+      print('📋 Preparing booking data...');
+
+      // 1. Datphong
+      final datphong = Datphong(
+        ngaynhanphong: booking.checkInDate!,
+        ngaytraphong: booking.checkOutDate!,
+        ghichu: 'Đặt qua mobile app',
+        makh: makh,
+        trangthai: 'Đã hủy',
+        trangthaithanhtoan: 'Chưa thanh toán',
+      );
+
+      // 2. Rooms với tongcong
+      final nights = booking.checkOutDate!
+          .difference(booking.checkInDate!)
+          .inDays;
+      final rooms = booking.selectedRooms.map((selectedRoom) {
+        final tongcong = selectedRoom.loaiphong.Giacoban * nights;
+
+        return {'maphong': selectedRoom.phong.Maphong, 'tongcong': tongcong};
+      }).toList();
+
+      // 3. Services
+      final services = booking.selectedServices
+          .map((s) => {'madv': s.dichvu.madv, 'soluong': s.soluong})
+          .toList();
+
+      // ===== CREATE BOOKING =====
+      final result = await bookingApi.createFullBooking(
+        datphong: datphong,
+        rooms: rooms,
+        services: services,
+      );
+
+      final madatphong = result['madatphong']!;
+      final mahoadon = result['mahoadon']!;
+
+      // ===== CREATE PAYMENT URL =====
+      print('\n💳 Creating payment URL...');
+
+      // ✅ Sử dụng mahoadon làm orderId
+      final paymentModel = PaymentInformationModel(
+        orderId: mahoadon,
+        orderType: 'billpayment',
+        amount: cart.totalPrice.toInt(),
+        orderDescription: 'Thanh toan dat phong khach san',
+        name: userProvider.currentUser?.hoten ?? 'Khach hang',
+      );
+
+      print('   - OrderId (mahoadon): $mahoadon');
+      print('   - Amount: ${cart.totalPrice.toInt()} VNĐ');
+
+      final paymentResponse = await paymentApi.createVnPayUrl(paymentModel);
+      print('✅ Payment URL created');
+
+      // Close loading
+      Navigator.pop(context);
+      final totalAmount = booking.roomsTotal.toInt();
+      final orderId = mahoadon;
+      // Clear booking data
+      booking.clearAll();
+      context.read<BookingCartProvider>().clear();
+
+      // Navigate to payment WebView
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentWebViewScreen(
+            paymentUrl: paymentResponse.url,
+            orderId: orderId,
+            amount: totalAmount,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('❌ Booking failed: $e');
+
+      // Close loading
+      Navigator.pop(context);
+
+      // Show error
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Lỗi'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Không thể tạo đặt phòng:'),
+              const SizedBox(height: AppDimensions.sm),
+              Container(
+                padding: const EdgeInsets.all(AppDimensions.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                ),
+                child: Text(e.toString(), style: const TextStyle(fontSize: 12)),
               ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
             ),
           ],
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
-          ),
-        ],
-      ),
-    );
+      );
+    }
   }
-}
 }

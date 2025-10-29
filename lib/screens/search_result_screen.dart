@@ -95,354 +95,318 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
 Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.md,
-        vertical: AppDimensions.sm,
-      ),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ✅ HÌNH ẢNH
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(AppDimensions.radiusLg),
-            ),
-            child: Stack(
-              children: [
-                Image.asset(
-                  'assets/images/${roomGroup.hinhanhphong.imageUrls.isNotEmpty ? roomGroup.hinhanhphong.imageUrls.first : "placeholder.jpg"}',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color: AppColors.background,
-                      child: const Center(
-                        child: Icon(
-                          Icons.hotel,
-                          size: 64,
-                          color: AppColors.textHint,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                
-                // ✅ BADGE SỐ PHÒNG TRỐNG
-                Positioned(
-                  top: AppDimensions.md,
-                  right: AppDimensions.md,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimensions.md,
-                      vertical: AppDimensions.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${roomGroup.soluongtrong} phòng trống',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+  return Consumer<BookingCartProvider>(
+    builder: (context, cart, child) {
+      // ✅ ĐẾM SỐ PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
+      final addedCount = cart.selectedRooms
+          .where((r) => r.loaiphong.Maloaiphong == roomGroup.loaiphong.Maloaiphong)
+          .length;
+      
+      // ✅ KIỂM TRA CÒN PHÒNG TRỐNG KHÔNG
+      final hasAvailableRoom = addedCount < roomGroup.danhsachphong.length;
 
-          Padding(
-            padding: const EdgeInsets.all(AppDimensions.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ✅ TÊN LOẠI PHÒNG
-                Text(
-                  roomGroup.loaiphong.Tenloaiphong,
-                  style: AppTextStyles.h3,
-                ),
-                
-                const SizedBox(height: AppDimensions.sm),
-                
-                // ✅ THÔNG TIN
-                Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${roomGroup.loaiphong.Songuoitoida} người',
-                      style: AppTextStyles.caption,
-                    ),
-                    const SizedBox(width: AppDimensions.md),
-                    Icon(
-                      Icons.king_bed_outlined,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${roomGroup.loaiphong.Sogiuong} giường',
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: AppDimensions.sm),
-                
-                // ✅ MÔ TẢ
-                if (roomGroup.loaiphong.Mota != null)
-                  Text(
-                    roomGroup.loaiphong.Mota!,
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                
-                const SizedBox(height: AppDimensions.md),
-                
-                // ✅ GIÁ
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Giá từ',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${CurrencyFormatter.format(roomGroup.loaiphong.Giacoban)} VNĐ',
-                            style: AppTextStyles.price.copyWith(fontSize: 18),
-                          ),
-                          Text(
-                            '/ đêm',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // ✅ NÚT CHỌN PHÒNG
-                    ElevatedButton.icon(
-                      onPressed: () => _showSelectRoomDialog(roomGroup),
-                      icon: const Icon(Icons.add_shopping_cart, size: 18),
-                      label: const Text('Chọn phòng'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimensions.lg,
-                          vertical: AppDimensions.md,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSelectRoomDialog(LoaiphongGrouped roomGroup) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppDimensions.radiusXl),
-          ),
+      return Card(
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppDimensions.md,
+          vertical: AppDimensions.sm,
+        ),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
-            Container(
-              width: 40,
-              height: 5,
-              margin: const EdgeInsets.symmetric(vertical: AppDimensions.md),
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: BorderRadius.circular(10),
+            // ✅ HÌNH ẢNH
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppDimensions.radiusLg),
               ),
-            ),
-
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(AppDimensions.md),
-              child: Row(
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Chọn phòng',
-                          style: AppTextStyles.h3,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${roomGroup.loaiphong.Tenloaiphong} - ${roomGroup.soluongtrong} phòng trống',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
+                  Image.asset(
+                    'assets/images/${roomGroup.hinhanhphong.imageUrls.isNotEmpty ? roomGroup.hinhanhphong.imageUrls.first : "placeholder.jpg"}',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        color: AppColors.background,
+                        child: const Center(
+                          child: Icon(
+                            Icons.hotel,
+                            size: 64,
+                            color: AppColors.textHint,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-
-            const Divider(height: 1),
-
-            // ✅ DANH SÁCH PHÒNG
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(AppDimensions.md),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: AppDimensions.sm,
-                  mainAxisSpacing: AppDimensions.sm,
-                  childAspectRatio: 1.5,
-                ),
-                itemCount: roomGroup.danhsachphong.length,
-                itemBuilder: (context, index) {
-                  final phong = roomGroup.danhsachphong[index];
-                  final cart = context.watch<BookingCartProvider>();
-                  final isSelected = cart.selectedRooms.any(
-                    (r) => r.phong.Maphong == phong.Maphong,
-                  );
-
-                  return GestureDetector(
-                    onTap: () {
-                      if (isSelected) {
-                        // Remove
-                        cart.removeRoom(phong.Maphong);
-                      } else {
-                        // Add
-                        cart.addRoom(Phongandloaiphong(
-                          phong: phong,
-                          loaiphong: roomGroup.loaiphong,
-                          hinhanhphong: roomGroup.hinhanhphong,
-                        ));
-                      }
+                      );
                     },
+                  ),
+                  
+                  // ✅ BADGE SỐ PHÒNG TRỐNG
+                  Positioned(
+                    top: AppDimensions.md,
+                    right: AppDimensions.md,
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected 
-                            ? AppColors.primary 
-                            : AppColors.background,
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                        border: Border.all(
-                          color: isSelected 
-                              ? AppColors.primary 
-                              : AppColors.divider,
-                          width: 2,
-                        ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimensions.md,
+                        vertical: AppDimensions.sm,
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      decoration: BoxDecoration(
+                        color: hasAvailableRoom ? Colors.green : Colors.orange,
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            isSelected ? Icons.check_circle : Icons.meeting_room,
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
-                            size: 28,
+                            hasAvailableRoom ? Icons.check_circle : Icons.info,
+                            color: Colors.white,
+                            size: 16,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            'Phòng ${phong.Sophong}',
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textPrimary,
+                            hasAvailableRoom
+                                ? '${roomGroup.soluongtrong - addedCount} phòng trống'
+                                : 'Đã chọn hết',
+                            style: const TextStyle(
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 12,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.all(AppDimensions.md),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
                   ),
                 ],
               ),
-              child: SafeArea(
-                child: PrimaryButton(
-                  text: 'Xong',
-                  onPressed: () => Navigator.pop(context),
-                ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(AppDimensions.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ✅ TÊN LOẠI PHÒNG
+                  Text(
+                    roomGroup.loaiphong.Tenloaiphong,
+                    style: AppTextStyles.h3,
+                  ),
+                  
+                  const SizedBox(height: AppDimensions.sm),
+                  
+                  // ✅ THÔNG TIN
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${roomGroup.loaiphong.Songuoitoida} người',
+                        style: AppTextStyles.caption,
+                      ),
+                      const SizedBox(width: AppDimensions.md),
+                      Icon(
+                        Icons.king_bed_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${roomGroup.loaiphong.Sogiuong} giường',
+                        style: AppTextStyles.caption,
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: AppDimensions.sm),
+                  
+                  // ✅ MÔ TẢ
+                  if (roomGroup.loaiphong.Mota != null)
+                    Text(
+                      roomGroup.loaiphong.Mota!,
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  
+                  const SizedBox(height: AppDimensions.md),
+
+                  // ✅ GIÁ VÀ BUTTON
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Giá từ',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${CurrencyFormatter.format(roomGroup.loaiphong.Giacoban)} VNĐ',
+                              style: AppTextStyles.price.copyWith(fontSize: 18),
+                            ),
+                            Text(
+                              '/ đêm',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // ✅ NÚT THÊM TỰ ĐỘNG
+                      ElevatedButton.icon(
+                        onPressed: hasAvailableRoom
+                            ? () => _autoAddRoom(roomGroup, cart)
+                            : null,
+                        icon: Icon(
+                          hasAvailableRoom ? Icons.add_shopping_cart : Icons.check,
+                          size: 18,
+                        ),
+                        label: Text(hasAvailableRoom ? 'Thêm vào giỏ' : 'Đã chọn hết'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: hasAvailableRoom 
+                              ? AppColors.primary 
+                              : Colors.grey,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppDimensions.lg,
+                            vertical: AppDimensions.md,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
+// ✅ TỰ ĐỘNG THÊM PHÒNG
+void _autoAddRoom(LoaiphongGrouped roomGroup, BookingCartProvider cart) {
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  print('🤖 AUTO ADD ROOM');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  print('Loại phòng: ${roomGroup.loaiphong.Tenloaiphong}');
+  
+  // ✅ TÌM PHÒNG ĐÃ THÊM
+  final addedRoomIds = cart.selectedRooms
+      .where((r) => r.loaiphong.Maloaiphong == roomGroup.loaiphong.Maloaiphong)
+      .map((r) => r.phong.Maphong)
+      .toSet();
+  
+  print('Phòng đã thêm: $addedRoomIds');
+  
+  // ✅ TÌM PHÒNG CHƯA THÊM
+  final availableRoom = roomGroup.danhsachphong.firstWhere(
+    (phong) => !addedRoomIds.contains(phong.Maphong),
+    orElse: () => throw Exception('Không còn phòng trống'),
+  );
+  
+  print('Tự động chọn phòng: ${availableRoom.Sophong} (ID: ${availableRoom.Maphong})');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  
+  // ✅ THÊM VÀO GIỎ
+  cart.addRoom(Phongandloaiphong(
+    phong: availableRoom,
+    loaiphong: roomGroup.loaiphong,
+    hinhanhphong: roomGroup.hinhanhphong,
+  ));
+
+}
+
+// ✅ XEM PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
+void _showAddedRooms(LoaiphongGrouped roomGroup) {
+  final cart = context.read<BookingCartProvider>();
+  final addedRooms = cart.selectedRooms
+      .where((r) => r.loaiphong.Maloaiphong == roomGroup.loaiphong.Maloaiphong)
+      .toList();
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) => Container(
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppDimensions.radiusXl),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Phòng đã thêm - ${roomGroup.loaiphong.Tenloaiphong}',
+            style: AppTextStyles.h3,
+          ),
+          const SizedBox(height: AppDimensions.md),
+          ...addedRooms.map((room) => ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppColors.primary,
+              child: Text(
+                '${room.phong.Sophong}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+            title: Text('Phòng ${room.phong.Sophong}'),
+            trailing: IconButton(
+              icon: const Icon(Icons.remove_circle, color: Colors.red),
+              onPressed: () {
+                cart.removeRoom(room.phong.Maphong);
+                if (addedRooms.length == 1) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          )),
+          const SizedBox(height: AppDimensions.md),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  
   // ✅ SORT ROOM GROUPS
   List<LoaiphongGrouped> _sortRoomGroups(List<LoaiphongGrouped> groups) {
     switch (_sortBy) {
@@ -473,7 +437,6 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
         IconButton(
           icon: const Icon(Icons.filter_list),
           onPressed: () {
-            // TODO: Show filter bottom sheet
           },
         ),
       ],
@@ -845,13 +808,6 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Phòng ${room.phong.Sophong}',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
                                   const SizedBox(height: AppDimensions.sm),
                                   Row(
                                     children: [
@@ -1013,24 +969,4 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
     ),
   );
 }
-
-  /// Sort rooms
-  List<Phongandloaiphong> _sortRooms(List<Phongandloaiphong> rooms) {
-    switch (_sortBy) {
-      case 'price_low':
-        rooms.sort((a, b) => a.loaiphong.Giacoban.compareTo(b.loaiphong.Giacoban));
-        break;
-      case 'price_high':
-        rooms.sort((a, b) => b.loaiphong.Giacoban.compareTo(a.loaiphong.Giacoban));
-        break;
-      case 'rating':
-        // TODO: Sort by rating when available
-        break;
-      case 'popular':
-      default:
-        // Keep original order
-        break;
-    }
-    return rooms;
-  }
 }
