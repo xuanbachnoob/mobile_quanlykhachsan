@@ -130,13 +130,17 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
 Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
   return Consumer<BookingCartProvider>(
     builder: (context, cart, child) {
-      // ✅ ĐẾM SỐ PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
       final addedCount = cart.selectedRooms
           .where((r) => r.loaiphong.Maloaiphong == roomGroup.loaiphong.Maloaiphong)
           .length;
-      
-      // ✅ KIỂM TRA CÒN PHÒNG TRỐNG KHÔNG
       final hasAvailableRoom = addedCount < roomGroup.danhsachphong.length;
+
+      // ✅ LẤY VOUCHER
+      final voucher = _voucherMap[roomGroup.loaiphong.Maloaiphong];
+      final giagoc = roomGroup.loaiphong.Giacoban;
+      final giagiam = voucher?.giagiam ?? 0;
+      final giasaugiam = giagoc - giagiam;
+      final hasDiscount = giagiam > 0;
 
       return Card(
         margin: const EdgeInsets.symmetric(
@@ -147,194 +151,207 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // ✅ THÊM STACK ĐỂ CHỨA RIBBON
+        child: Stack(
           children: [
-            // ✅ HÌNH ẢNH
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(AppDimensions.radiusLg),
-              ),
-              child: Stack(
-                children: [
-                  Image.asset(
-                    'assets/images/${roomGroup.hinhanhphong.imageUrls.isNotEmpty ? roomGroup.hinhanhphong.imageUrls.first : "placeholder.jpg"}',
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // HÌNH ẢNH
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppDimensions.radiusLg),
+                  ),
+                  child: Stack(
+                    children: [
+                      Image.asset(
+                        'assets/images/${roomGroup.hinhanhphong.imageUrls.isNotEmpty ? roomGroup.hinhanhphong.imageUrls.first : "placeholder.jpg"}',
                         height: 200,
-                        color: AppColors.background,
-                        child: const Center(
-                          child: Icon(
-                            Icons.hotel,
-                            size: 64,
-                            color: AppColors.textHint,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  
-                  // ✅ BADGE SỐ PHÒNG TRỐNG
-                  Positioned(
-                    top: AppDimensions.md,
-                    right: AppDimensions.md,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppDimensions.md,
-                        vertical: AppDimensions.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: hasAvailableRoom ? Colors.green : Colors.orange,
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            hasAvailableRoom ? Icons.check_circle : Icons.info,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            hasAvailableRoom
-                                ? '${roomGroup.soluongtrong - addedCount} phòng trống'
-                                : 'Đã chọn hết',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 200,
+                            color: AppColors.background,
+                            child: const Center(
+                              child: Icon(Icons.hotel, size: 64, color: AppColors.textHint),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(AppDimensions.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ TÊN LOẠI PHÒNG
-                  Text(
-                    roomGroup.loaiphong.Tenloaiphong,
-                    style: AppTextStyles.h3,
-                  ),
-                  
-                  const SizedBox(height: AppDimensions.sm),
-                  
-                  // ✅ THÔNG TIN
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person_outline,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${roomGroup.loaiphong.Songuoitoida} người',
-                        style: AppTextStyles.caption,
-                      ),
-                      const SizedBox(width: AppDimensions.md),
-                      Icon(
-                        Icons.king_bed_outlined,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${roomGroup.loaiphong.Sogiuong} giường',
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: AppDimensions.sm),
-                  
-                  // ✅ MÔ TẢ
-                  if (roomGroup.loaiphong.Mota != null)
-                    Text(
-                      roomGroup.loaiphong.Mota!,
-                      style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  
-                  const SizedBox(height: AppDimensions.md),
-
-                  // ✅ GIÁ VÀ BUTTON
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Giá từ',
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${CurrencyFormatter.format(roomGroup.loaiphong.Giacoban)} VNĐ',
-                              style: AppTextStyles.price.copyWith(fontSize: 18),
-                            ),
-                            Text(
-                              '/ đêm',
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                       
-                      // ✅ NÚT THÊM TỰ ĐỘNG
-                      ElevatedButton.icon(
-                        onPressed: hasAvailableRoom
-                            ? () => _autoAddRoom(roomGroup, cart)
-                            : null,
-                        icon: Icon(
-                          hasAvailableRoom ? Icons.add_shopping_cart : Icons.check,
-                          size: 18,
-                        ),
-                        label: Text(hasAvailableRoom ? 'Thêm vào giỏ' : 'Đã chọn hết'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: hasAvailableRoom 
-                              ? AppColors.primary 
-                              : Colors.grey,
-                          foregroundColor: Colors.white,
+                      // BADGE PHÒNG TRỐNG
+                      Positioned(
+                        top: AppDimensions.md,
+                        right: AppDimensions.md,
+                        child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: AppDimensions.lg,
-                            vertical: AppDimensions.md,
+                            horizontal: AppDimensions.md,
+                            vertical: AppDimensions.sm,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                          decoration: BoxDecoration(
+                            color: hasAvailableRoom ? Colors.green : Colors.orange,
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                hasAvailableRoom ? Icons.check_circle : Icons.info,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                hasAvailableRoom
+                                    ? '${roomGroup.soluongtrong - addedCount} phòng trống'
+                                    : 'Đã chọn hết',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(AppDimensions.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // TÊN LOẠI PHÒNG
+                      Text(roomGroup.loaiphong.Tenloaiphong, style: AppTextStyles.h3),
+                      const SizedBox(height: AppDimensions.sm),
+                      
+                      // THÔNG TIN
+                      Row(
+                        children: [
+                          Icon(Icons.person_outline, size: 16, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text('${roomGroup.loaiphong.Songuoitoida} người', style: AppTextStyles.caption),
+                          const SizedBox(width: AppDimensions.md),
+                          Icon(Icons.king_bed_outlined, size: 16, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text('${roomGroup.loaiphong.Sogiuong} giường', style: AppTextStyles.caption),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: AppDimensions.sm),
+                      
+                      // MÔ TẢ
+                      if (roomGroup.loaiphong.Mota != null)
+                        Text(
+                          roomGroup.loaiphong.Mota!,
+                          style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      
+                      const SizedBox(height: AppDimensions.md),
+
+                      // ✅ GIÁ VÀ BUTTON
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Giá từ', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                                const SizedBox(height: 4),
+                                
+                                // ✅ GIÁ GỐC (GẠCH NGANG NẾU CÓ VOUCHER)
+                                if (hasDiscount) ...[
+                                  Text(
+                                    '${CurrencyFormatter.format(giagoc)} VNĐ',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                ],
+                                
+                                // ✅ GIÁ SAU GIẢM
+                                Text(
+                                  '${CurrencyFormatter.format(giasaugiam)} VNĐaaa',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: hasDiscount ? Colors.red : AppColors.primary,
+                                  ),
+                                ),
+                                
+                                Text('/ đêm', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                              ],
+                            ),
+                          ),
+                          
+                          // NÚT THÊM
+                          ElevatedButton.icon(
+                            onPressed: hasAvailableRoom ? () => _autoAddRoom(roomGroup, cart) : null,
+                            icon: Icon(hasAvailableRoom ? Icons.add_shopping_cart : Icons.check, size: 18),
+                            label: Text(hasAvailableRoom ? 'Thêm vào giỏ' : 'Đã chọn hết'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: hasAvailableRoom ? AppColors.primary : Colors.grey,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppDimensions.lg,
+                                vertical: AppDimensions.md,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+
+            // ✅ RIBBON VOUCHER GÓC TRÊN TRÁI
+            if (hasDiscount)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: CustomPaint(
+                  painter: RibbonPainter(),
+                  child: Container(
+                    width: 140,
+                    height: 36,
+                    padding: const EdgeInsets.only(left: 8, top: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.local_offer, color: Colors.white, size: 14),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            voucher!.tenvoucher,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -1002,4 +1019,27 @@ void _showAddedRooms(LoaiphongGrouped roomGroup) {
     ),
   );
 }
+}
+class RibbonPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFE53935), Color(0xFFD32F2F)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width - 8, 0)
+      ..lineTo(size.width, size.height / 2)
+      ..lineTo(size.width - 8, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+    canvas.drawShadow(path, Colors.black.withOpacity(0.3), 4, false);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -9,7 +9,7 @@ class VoucherApiService {
   /// Lấy tất cả voucher đang hiệu lực theo ngày
   Future<List<Voucher>> getActiveVouchers(DateTime checkInDate) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(checkInDate);
-    final url = Uri.parse('${ApiConfig.baseUrl}/voucher/active?checkInDate=$dateStr');
+    final url = Uri.parse('${ApiConfig.baseUrl}/Vouchers/active?checkInDate=$dateStr');
 
     try {
       final response = await http.get(url);
@@ -28,7 +28,7 @@ class VoucherApiService {
   /// Lấy voucher theo mã loại phòng
   Future<Voucher?> getVoucherByRoomType(int maloaiphong, DateTime checkInDate) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(checkInDate);
-    final url = Uri.parse('${ApiConfig.baseUrl}/voucher/by-room-type/$maloaiphong?checkInDate=$dateStr');
+    final url = Uri.parse('${ApiConfig.baseUrl}/Vouchers/by-room-type/$maloaiphong?checkInDate=$dateStr');
 
     try {
       final response = await http.get(url);
