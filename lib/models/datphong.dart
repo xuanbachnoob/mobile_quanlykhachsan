@@ -1,3 +1,9 @@
+import 'package:mobile_quanlykhachsan/models/chitietdatphong.dart';
+import 'package:mobile_quanlykhachsan/models/chitiethoadon.dart';
+import 'package:mobile_quanlykhachsan/models/denbuthiethai.dart';
+import 'package:mobile_quanlykhachsan/models/hoadon.dart';
+import 'package:mobile_quanlykhachsan/models/sudungdv.dart';
+
 class Datphong {
   final int? madatphong;
   final DateTime? ngaydat;
@@ -12,6 +18,11 @@ class Datphong {
   final String? ghichu;
   final int? makh;
   final DateTime? ngayhuy;
+  final List<Chitietdatphong>? chitietdatphongs;
+  final List<Sudungdv>? sudungdichvus;
+  final List<Denbuthiethai>? denbuthiethai;
+  final List<Chitiethoadon>? chitiethoadons;
+  final List<Hoadon>? hoadons;
 
   Datphong({
     this.madatphong,
@@ -27,6 +38,11 @@ class Datphong {
     this.ghichu,
     this.makh,
     this.ngayhuy,
+    this.chitietdatphongs,
+    this.sudungdichvus,
+    this.denbuthiethai,
+    this.chitiethoadons,
+    this.hoadons,
   });
 
   /// ✅ toJson CHỈ GỬI: ngaynhanphong, ngaytraphong, makh, ghichu
@@ -65,6 +81,31 @@ class Datphong {
       ghichu: json['ghichu'] as String?,
       makh: json['makh'] as int?,
       ngayhuy: json['ngayhuy'] != null ? DateTime.parse(json['ngayhuy']) : null,
+      chitietdatphongs: json['chitietdatphongs'] != null
+          ? (json['chitietdatphongs'] as List)
+              .map((e) => Chitietdatphong.fromJson(e))
+              .toList()
+          : null,
+      sudungdichvus: json['sudungdichvus'] != null
+          ? (json['sudungdichvus'] as List)
+              .map((e) => Sudungdv.fromJson(e))
+              .toList()
+          : null,
+      denbuthiethai: json['denbuthiethais'] != null
+          ? (json['denbuthiethais'] as List)
+              .map((e) => Denbuthiethai.fromJson(e))
+              .toList()
+          : null,
+      chitiethoadons: json['chitiethoadons'] != null
+          ? (json['chitiethoadons'] as List)
+              .map((e) => Chitiethoadon.fromJson(e))
+              .toList()
+          : null,
+      hoadons: json['hoadons'] != null
+          ? (json['hoadons'] as List)
+              .map((e) => Hoadon.fromJson(e))
+              .toList()
+          : null,
     );
   }
 }

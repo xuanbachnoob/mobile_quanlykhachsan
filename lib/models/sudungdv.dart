@@ -7,6 +7,7 @@ class Sudungdv {
   final int? dongia;
   final int? tongtien;
   final String? trangthai;
+  final String? tendichvu;
 
   Sudungdv({
     this.masudungdv,
@@ -16,6 +17,7 @@ class Sudungdv {
     this.dongia,
     this.tongtien,
     this.trangthai,
+    this.tendichvu,
   });
 
   Map<String, dynamic> toJson() {
@@ -39,6 +41,7 @@ class Sudungdv {
       dongia: json['dongia'],
       tongtien: json['tongtien'],
       trangthai: json['trangthai'],
+      tendichvu: json['tendichvu'] ?? null,
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_quanlykhachsan/API/voucher_api_service.dart';
 import 'package:mobile_quanlykhachsan/models/loaiphong_grouped.dart';
+import 'package:mobile_quanlykhachsan/models/voucher.dart';
 import 'package:mobile_quanlykhachsan/providers/booking_provider.dart';
 import 'package:mobile_quanlykhachsan/screens/booking_confirmation_screen.dart';
 import 'package:mobile_quanlykhachsan/screens/room_card.dart';
@@ -21,10 +23,12 @@ class SearchResultScreen extends StatefulWidget {
   final DateTime checkOutDate;
   final int guestCount;
 
+
   const SearchResultScreen({
     super.key,
     required this.searchFuture,
     required this.checkInDate,
+    
     required this.checkOutDate,
     required this.guestCount,
   });
@@ -32,11 +36,40 @@ class SearchResultScreen extends StatefulWidget {
   @override
   State<SearchResultScreen> createState() =>
       _SearchResultScreenState();
+
 }
 
 class _SearchResultScreenState extends State<SearchResultScreen> {
   String _sortBy = 'popular'; // popular, price_low, price_high, rating
+  final VoucherApiService _voucherService = VoucherApiService();
+  Map<int, Voucher> _voucherMap = {};
+  bool _loadingVouchers = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadVouchers();
+  }
+
+  Future<void> _loadVouchers() async {
+    try {
+      final vouchers = await _voucherService.getActiveVouchers(widget.checkInDate);
+      setState(() {
+        _voucherMap = {
+          for (var v in vouchers)
+            if (v.maloaiphong != null) v.maloaiphong!: v
+        };
+        _loadingVouchers = false;
+      });
+      print('✅ Loaded ${vouchers.length} vouchers');
+    } catch (e) {
+      print('❌ Error loading vouchers: $e');
+      setState(() {
+        _loadingVouchers = false;
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

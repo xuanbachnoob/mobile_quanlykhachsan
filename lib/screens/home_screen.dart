@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_quanlykhachsan/API/auth_api_service.dart';
+import 'package:mobile_quanlykhachsan/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import '../config/app_colors.dart';
 import '../config/app_dimensions.dart';
@@ -15,9 +16,9 @@ import '../widgets/primary_button.dart';
 import '../utils/date_formatter.dart';
 import 'search_result_screen.dart';
 import '../widgets/room_detail_dialog.dart';
-import 'profile_screen.dart'; 
-import 'booking_history_screen.dart'; 
-import 'change_password_screen.dart'; 
+import 'profile_screen.dart';
+import 'booking_history_screen.dart';
+import 'change_password_screen.dart';
 
 /// Màn hình Home hiện đại
 class HomeScreen extends StatefulWidget {
@@ -67,10 +68,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _selectDateRange() async {
     final picked = await showDateRangePicker(
       context: context,
-      initialDateRange: DateTimeRange(
-        start: _checkInDate,
-        end: _checkOutDate,
-      ),
+      initialDateRange: DateTimeRange(start: _checkInDate, end: _checkOutDate),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Chọn ngày nhận - trả phòng',
@@ -104,6 +102,7 @@ class HomeScreenState extends State<HomeScreen> {
     final searchFuture = _apiService.timVaNhomPhongTheoLoai(
       _checkInDate,
       _checkOutDate,
+      _guestCount,
     );
 
     Navigator.push(
@@ -169,31 +168,29 @@ class HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context); // Close dialog
-              
+
               // Show loading
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (_) => const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                builder: (_) =>
+                    const Center(child: CircularProgressIndicator()),
               );
-              
+
               // Logout
               await context.read<UserProvider>().logout();
-              
-              // Navigate to login
+
+              Navigator.of(context).pop();
+
+              // Navigate to login - THAY ĐỔI Ở ĐÂY
               if (mounted) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (route) => false,
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Đăng xuất'),
           ),
         ],
@@ -231,9 +228,7 @@ class HomeScreenState extends State<HomeScreen> {
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.headerGradient,
-          ),
+          decoration: const BoxDecoration(gradient: AppColors.headerGradient),
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppDimensions.md),
@@ -247,7 +242,9 @@ class HomeScreenState extends State<HomeScreen> {
                       PopupMenuButton<String>(
                         offset: const Offset(0, 50),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppDimensions.radiusMd,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -298,7 +295,7 @@ class HomeScreenState extends State<HomeScreen> {
                               dense: true,
                             ),
                           ),
-                          
+
                           // Lịch sử đặt phòng
                           const PopupMenuItem(
                             value: 'history',
@@ -309,7 +306,7 @@ class HomeScreenState extends State<HomeScreen> {
                               dense: true,
                             ),
                           ),
-                          
+
                           // Đổi mật khẩu
                           const PopupMenuItem(
                             value: 'change_password',
@@ -320,9 +317,9 @@ class HomeScreenState extends State<HomeScreen> {
                               dense: true,
                             ),
                           ),
-                          
+
                           const PopupMenuDivider(),
-                          
+
                           // Đăng xuất
                           const PopupMenuItem(
                             value: 'logout',
@@ -381,16 +378,9 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.search,
-                color: AppColors.primary,
-                size: 28,
-              ),
+              const Icon(Icons.search, color: AppColors.primary, size: 28),
               const SizedBox(width: AppDimensions.sm),
-              Text(
-                'Tìm phòng của bạn',
-                style: AppTextStyles.h3,
-              ),
+              Text('Tìm phòng của bạn', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: AppDimensions.lg),
@@ -473,10 +463,7 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Số khách',
-                        style: AppTextStyles.caption,
-                      ),
+                      Text('Số khách', style: AppTextStyles.caption),
                       const SizedBox(height: 2),
                       Text(
                         '$_guestCount người',
@@ -532,10 +519,7 @@ class HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Loại phòng của chúng tôi',
-                style: AppTextStyles.h3,
-              ),
+              Text('Loại phòng của chúng tôi', style: AppTextStyles.h3),
               TextButton(
                 onPressed: () {
                   // TODO: View all
@@ -553,10 +537,7 @@ class HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: AppDimensions.md),
         if (_isLoading)
-          const SizedBox(
-            height: 400,
-            child: RoomListShimmer(itemCount: 2),
-          )
+          const SizedBox(height: 400, child: RoomListShimmer(itemCount: 2))
         else if (_hasError)
           SizedBox(
             height: 400,
@@ -664,10 +645,7 @@ class HomeScreenState extends State<HomeScreen> {
                           color: AppColors.textSecondary,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          '${room.Sogiuong}',
-                          style: AppTextStyles.caption,
-                        ),
+                        Text('${room.Sogiuong}', style: AppTextStyles.caption),
                       ],
                     ),
                     const Spacer(),
@@ -675,10 +653,7 @@ class HomeScreenState extends State<HomeScreen> {
                       formatter.format(room.Giacoban),
                       style: AppTextStyles.price.copyWith(fontSize: 16),
                     ),
-                    Text(
-                      '/ đêm',
-                      style: AppTextStyles.caption,
-                    ),
+                    Text('/ đêm', style: AppTextStyles.caption),
                   ],
                 ),
               ),

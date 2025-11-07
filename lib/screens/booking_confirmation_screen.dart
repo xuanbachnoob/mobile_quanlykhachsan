@@ -209,7 +209,7 @@ class BookingConfirmationScreen extends StatelessWidget {
     );
   }
 
-  /// ✅ NÚT THÊM DỊCH VỤ CHUNG
+  /// NÚT THÊM DỊCH VỤ CHUNG
   Widget _buildAddServiceButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(AppDimensions.md),
@@ -667,7 +667,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     children: [
                       Text('Tạm tính:', style: AppTextStyles.body2),
                       Text(
-                        '${CurrencyFormatter.format(cart.subtotal)} VNĐ',
+                        '${CurrencyFormatter.format((cart.subtotal + booking.servicesTotal).toInt())} VNĐ',
                         style: AppTextStyles.body1.copyWith(
                           fontWeight: FontWeight.w600,
                           decoration: TextDecoration.lineThrough,
@@ -734,12 +734,42 @@ class BookingConfirmationScreen extends StatelessWidget {
                 children: [
                   Text('Tổng cộng', style: AppTextStyles.h3),
                   Text(
-                    '${CurrencyFormatter.format(cart.totalPrice)} VNĐ',
+                    '${CurrencyFormatter.format(cart.totalPrice + booking.servicesTotal.toInt())} VNĐ',
                     style: AppTextStyles.price.copyWith(fontSize: 20),
                   ),
+                  
                 ],
               ),
-
+              const SizedBox(height: AppDimensions.sm),
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.sm),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 194, 239, 255),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: const Color.fromARGB(255, 38, 150, 226),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Bạn sẽ được tích lũy ${cart.subtotal / 1000} Điểm',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: const Color.fromARGB(255, 4, 118, 159),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               // ✅ NOTE TIẾT KIỆM (NẾU CÓ GIẢM GIÁ)
               if (cart.discountPercentage > 0) ...[
                 const SizedBox(height: AppDimensions.sm),
@@ -973,7 +1003,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                         children: [
                           Text('Tạm tính:', style: AppTextStyles.body2),
                           Text(
-                            '${CurrencyFormatter.format(cart.subtotal)} VNĐ',
+                            '${CurrencyFormatter.format(cart.subtotal + booking.servicesTotal.toInt())} VNĐ',
                             style: AppTextStyles.body2.copyWith(
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.lineThrough,
@@ -1043,7 +1073,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${CurrencyFormatter.format(cart.totalPrice)} VNĐ',
+                          '${CurrencyFormatter.format(cart.totalPrice + booking.servicesTotal.toInt())} VNĐ',
                           style: AppTextStyles.body1.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
@@ -1085,6 +1115,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      
                     ],
                   ),
                 ),
@@ -1198,7 +1229,7 @@ class BookingConfirmationScreen extends StatelessWidget {
       final paymentModel = PaymentInformationModel(
         orderId: mahoadon,
         orderType: 'billpayment',
-        amount: cart.totalPrice.toInt(),
+        amount: cart.totalPrice.toInt()+ booking.servicesTotal.toInt(),
         orderDescription: 'Thanh toan dat phong khach san',
         name: userProvider.currentUser?.hoten ?? 'Khach hang',
       );
