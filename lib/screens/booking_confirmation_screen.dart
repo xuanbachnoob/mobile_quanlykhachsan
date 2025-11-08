@@ -193,13 +193,63 @@ class BookingConfirmationScreen extends StatelessWidget {
                   const SizedBox(height: AppDimensions.sm),
 
                   // Price
-                  Text(
-                    '${CurrencyFormatter.format(room.loaiphong.Giacoban)} VNĐ / phòng',
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    // Giá gốc (nếu có voucher)
+    if (room.hasVoucher) ...[
+      Text(
+        '${CurrencyFormatter.format(room.loaiphong.Giacoban)} VNĐ',
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.grey,
+          decoration: TextDecoration.lineThrough,
+        ),
+      ),
+      const SizedBox(height: 2),
+    ],
+    
+    // Giá sau voucher
+    Row(
+      children: [
+        Text(
+          '${CurrencyFormatter.format(room.giaSauGiam)} VNĐ',
+          style: AppTextStyles.body2.copyWith(
+            color: room.hasVoucher ? Colors.red : AppColors.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const Text(' / phòng', style: TextStyle(fontSize: 12)),
+      ],
+    ),
+    
+    // Badge voucher nhỏ
+    if (room.hasVoucher)
+      Container(
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.local_offer, size: 10, color: Colors.red.shade700),
+            const SizedBox(width: 4),
+            Text(
+              room.voucher!.tenvoucher,
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.red.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+  ],
+),
                 ],
               ),
             );
@@ -1202,7 +1252,7 @@ class BookingConfirmationScreen extends StatelessWidget {
           .difference(booking.checkInDate!)
           .inDays;
       final rooms = booking.selectedRooms.map((selectedRoom) {
-        final tongcong = selectedRoom.loaiphong.Giacoban * nights;
+        final tongcong = selectedRoom.giaSauGiam * nights;
 
         return {'maphong': selectedRoom.phong.Maphong, 'tongcong': tongcong};
       }).toList();

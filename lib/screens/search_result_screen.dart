@@ -40,7 +40,7 @@ class SearchResultScreen extends StatefulWidget {
 }
 
 class _SearchResultScreenState extends State<SearchResultScreen> {
-  String _sortBy = 'popular'; // popular, price_low, price_high, rating
+  String _sortBy = 'price_low'; // popular, price_low, price_high, rating
   final VoucherApiService _voucherService = VoucherApiService();
   Map<int, Voucher> _voucherMap = {};
   bool _loadingVouchers = true;
@@ -52,23 +52,38 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
   Future<void> _loadVouchers() async {
-    try {
-      final vouchers = await _voucherService.getActiveVouchers(widget.checkInDate);
-      setState(() {
-        _voucherMap = {
-          for (var v in vouchers)
-            if (v.maloaiphong != null) v.maloaiphong!: v
-        };
-        _loadingVouchers = false;
-      });
-      print('✅ Loaded ${vouchers.length} vouchers');
-    } catch (e) {
-      print('❌ Error loading vouchers: $e');
-      setState(() {
-        _loadingVouchers = false;
-      });
+  try {
+    print('🔄 Loading vouchers for date: ${widget.checkInDate}');
+    
+    final vouchers = await _voucherService.getActiveVouchers(widget.checkInDate);
+    
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('📦 VOUCHERS LOADED');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('Total: ${vouchers.length} vouchers');
+    
+    for (var v in vouchers) {
+      print('- ${v.tenvoucher}');
+      print('  Mã loại phòng: ${v.maloaiphong}');
+      print('  Giảm: ${v.giagiam} VNĐ');
+      print('  Từ ${v.ngaybatdau} đến ${v.ngayketthuc}');
     }
+    
+    setState(() {
+      _voucherMap = {
+        for (var v in vouchers)
+          if (v.maloaiphong != null) v.maloaiphong!: v
+      };
+      _loadingVouchers = false;
+    });
+    
+    print('\n✅ Voucher Map created with keys: ${_voucherMap.keys.toList()}');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  } catch (e) {
+    print('❌ Error loading vouchers: $e');
+    setState(() => _loadingVouchers = false);
   }
+}
   
   @override
   Widget build(BuildContext context) {
@@ -359,14 +374,29 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
   );
 }
 
-// ✅ TỰ ĐỘNG THÊM PHÒNG
 void _autoAddRoom(LoaiphongGrouped roomGroup, BookingCartProvider cart) {
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   print('🤖 AUTO ADD ROOM');
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   print('Loại phòng: ${roomGroup.loaiphong.Tenloaiphong}');
+  print('Mã loại phòng: ${roomGroup.loaiphong.Maloaiphong}');
   
-  // ✅ TÌM PHÒNG ĐÃ THÊM
+  // Kiểm tra voucher map
+  print('🔍 Voucher Map contains ${_voucherMap.length} vouchers');
+  print('🔍 Voucher Map Keys: ${_voucherMap.keys.toList()}');
+  
+  // Lấy voucher
+  final voucher = _voucherMap[roomGroup.loaiphong.Maloaiphong];
+  
+  if (voucher != null) {
+    print('✅ Found voucher:');
+    print('   - Tên: ${voucher.tenvoucher}');
+    print('   - Giảm: ${voucher.giagiam} VNĐ');
+    print('   - Mã loại phòng: ${voucher.maloaiphong}');
+  } else {
+    print('❌ No voucher found for this room type');
+  }
+  
   final addedRoomIds = cart.selectedRooms
       .where((r) => r.loaiphong.Maloaiphong == roomGroup.loaiphong.Maloaiphong)
       .map((r) => r.phong.Maphong)
@@ -374,22 +404,27 @@ void _autoAddRoom(LoaiphongGrouped roomGroup, BookingCartProvider cart) {
   
   print('Phòng đã thêm: $addedRoomIds');
   
-  // ✅ TÌM PHÒNG CHƯA THÊM
   final availableRoom = roomGroup.danhsachphong.firstWhere(
     (phong) => !addedRoomIds.contains(phong.Maphong),
     orElse: () => throw Exception('Không còn phòng trống'),
   );
   
   print('Tự động chọn phòng: ${availableRoom.Sophong} (ID: ${availableRoom.Maphong})');
-  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   
-  // ✅ THÊM VÀO GIỎ
-  cart.addRoom(Phongandloaiphong(
+  // Tạo object phòng với voucher
+  final roomToAdd = Phongandloaiphong(
     phong: availableRoom,
     loaiphong: roomGroup.loaiphong,
     hinhanhphong: roomGroup.hinhanhphong,
-  ));
-
+    voucher: voucher, // ← QUAN TRỌNG
+  );
+  
+  print('🔍 Voucher attached: ${roomToAdd.voucher != null}');
+  print('🔍 Has discount: ${roomToAdd.hasVoucher}');
+  print('🔍 Giá sau giảm: ${roomToAdd.giaSauGiam} VNĐ');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  
+  cart.addRoom(roomToAdd);
 }
 
 // ✅ XEM PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
@@ -589,10 +624,8 @@ void _showAddedRooms(LoaiphongGrouped roomGroup) {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildSortChip('Phổ biến', 'popular'),
                 _buildSortChip('Giá thấp', 'price_low'),
                 _buildSortChip('Giá cao', 'price_high'),
-                _buildSortChip('Đánh giá', 'rating'),
               ],
             ),
           ),
@@ -885,13 +918,63 @@ void _showAddedRooms(LoaiphongGrouped roomGroup) {
                                     ],
                                   ),
                                   const SizedBox(height: AppDimensions.sm),
-                                  Text(
-                                    '${CurrencyFormatter.format(room.loaiphong.Giacoban)} VNĐ / đêm',
-                                    style: AppTextStyles.body2.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                  Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    // Giá gốc (nếu có voucher)
+    if (room.hasVoucher) ...[
+      Text(
+        '${CurrencyFormatter.format(room.loaiphong.Giacoban)} VNĐ',
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.grey,
+          decoration: TextDecoration.lineThrough,
+        ),
+      ),
+      const SizedBox(height: 2),
+    ],
+    
+    // Giá sau giảm
+    Row(
+      children: [
+        Text(
+          '${CurrencyFormatter.format(room.giaSauGiam)} VNĐ',
+          style: AppTextStyles.body2.copyWith(
+            color: room.hasVoucher ? Colors.red : AppColors.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const Text(' / đêm', style: TextStyle(fontSize: 12, color: Colors.grey)),
+      ],
+    ),
+    
+    // Badge voucher
+    if (room.hasVoucher)
+      Container(
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.local_offer, size: 10, color: Colors.red.shade700),
+            const SizedBox(width: 4),
+            Text(
+              room.voucher!.tenvoucher,
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.red.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+  ],
+),
                                 ],
                               ),
                             ),

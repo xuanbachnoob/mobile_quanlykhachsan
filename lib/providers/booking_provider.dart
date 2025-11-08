@@ -23,11 +23,11 @@ class BookingProvider extends ChangeNotifier {
   }
 
   double get roomsTotal {
-    return _selectedRooms.fold(
-      0,
-      (sum, room) => sum + (room.loaiphong.Giacoban * numberOfNights),
-    );
-  }
+  return selectedRooms.fold<double>(
+    0,
+    (sum, room) => sum + room.giaSauGiam * numberOfNights, // ← DÙNG giaSauGiam
+  );
+}
 
   double get servicesTotal {
     return _selectedServices.fold(

@@ -66,34 +66,51 @@ class BookingCartProvider with ChangeNotifier {
   }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ✅ PRICE CALCULATION (TÍNH TIỀN)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
-  /// Tổng tiền GỐC (chưa giảm giá)
-  int get subtotal {
-    if (_selectedRooms.isEmpty) return 0;
-    
-    int total = 0;
-    for (var room in _selectedRooms.values) {
-      total += room.loaiphong.Giacoban;
-    }
-    
-    // Nhân với số đêm
-    return total * numberOfNights;
-  }
+// ✅ PRICE CALCULATION (TÍNH TIỀN) - ĐÃ SỬA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  /// Số tiền GIẢM GIÁ
-  int get discountAmount {
-    return (subtotal * discountPercentage).toInt();
+/// 1️⃣ Tổng giá GỐC (chưa trừ voucher, chưa giảm giá)
+int get originalSubtotal {
+  if (_selectedRooms.isEmpty) return 0;
+  int total = 0;
+  for (var room in _selectedRooms.values) {
+    total += room.loaiphong.Giacoban;
   }
+  return total * numberOfNights;
+}
 
-  /// Tổng tiền SAU GIẢM GIÁ
-  int get totalPrice {
-    return subtotal - discountAmount;
+/// 2️⃣ Tổng tiền GIẢM TỪ VOUCHER
+int get voucherDiscountTotal {
+  if (_selectedRooms.isEmpty) return 0;
+  int totalVoucherDiscount = 0;
+  for (var room in _selectedRooms.values) {
+    final giagiam = room.voucher?.giagiam ?? 0;
+    totalVoucherDiscount += giagiam;
   }
+  return totalVoucherDiscount * numberOfNights;
+}
 
-  /// Alias cho totalPrice (backward compatibility)
-  int get totalAmount => totalPrice;
+/// 3️⃣ Tổng tiền SAU KHI TRỪ VOUCHER (chưa giảm giá số phòng)
+int get subtotal {
+  return originalSubtotal - voucherDiscountTotal;
+}
+
+/// 4️⃣ Số tiền GIẢM GIÁ THEO SỐ PHÒNG (tính trên subtotal)
+int get discountAmount {
+  return (subtotal * discountPercentage).toInt();
+}
+
+/// 5️⃣ TỔNG TIỀN CUỐI CÙNG
+int get totalPrice {
+  return subtotal - discountAmount;
+}
+
+int get totalAmount => totalPrice;
+
+/// 6️⃣ TỔNG TẤT CẢ GIẢM GIÁ
+int get totalDiscount {
+  return voucherDiscountTotal + discountAmount;
+}
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // ✅ DISCOUNT TIERS (THƯ VIỆN MỨC GIẢM GIÁ)
@@ -173,23 +190,35 @@ class BookingCartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Thêm phòng vào giỏ
-  void addRoom(Phongandloaiphong item) {
-    if (!_selectedRooms.containsKey(item.phong.Maphong)) {
-      _selectedRooms[item.phong.Maphong] = item;
-      
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('✅ ROOM ADDED TO CART');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('Room: ${item.phong.Sophong} - ${item.loaiphong.Tenloaiphong}');
-      print('Price: ${item.loaiphong.Giacoban} VNĐ/night');
-      print('Total rooms: $roomCount');
-      print('Discount: ${(discountPercentage * 100).toInt()}%');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-      
-      notifyListeners();
+ /// Thêm phòng vào giỏ
+void addRoom(Phongandloaiphong item) {
+  if (!_selectedRooms.containsKey(item.phong.Maphong)) {
+    _selectedRooms[item.phong.Maphong] = item;
+    
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('✅ ROOM ADDED TO CART');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('Room: ${item.phong.Sophong} - ${item.loaiphong.Tenloaiphong}');
+    print('Original Price: ${item.loaiphong.Giacoban} VNĐ/night');
+    
+    if (item.hasVoucher) {
+      print('🎁 Voucher: ${item.voucher!.tenvoucher}');
+      print('   Discount: -${item.voucher!.giagiam} VNĐ');
+      print('   Price after voucher: ${item.giaSauGiam} VNĐ/night');
     }
+    
+    print('Total rooms: $roomCount');
+    print('Room Discount: ${(discountPercentage * 100).toInt()}%');
+    print('Original Subtotal: $originalSubtotal VNĐ');
+    print('Voucher Discount: -$voucherDiscountTotal VNĐ');
+    print('After Voucher: $subtotal VNĐ');
+    print('Room Discount Amount: -$discountAmount VNĐ');
+    print('FINAL TOTAL: $totalPrice VNĐ');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    
+    notifyListeners();
   }
+}
 
   /// Xóa phòng khỏi giỏ
   void removeRoom(int maPhong) {
