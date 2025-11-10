@@ -328,33 +328,8 @@ Future<void> _login() async {
 
               // Remember me & Forgot password
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Checkbox(
-                          value: _rememberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value ?? false;
-                            });
-                          },
-                          activeColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppDimensions.sm),
-                      Text(
-                        'Ghi nhớ đăng nhập',
-                        style: AppTextStyles.body2,
-                      ),
-                    ],
-                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.push(

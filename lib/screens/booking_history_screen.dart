@@ -49,7 +49,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen>
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Lịch sử đặt phòng'),
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,

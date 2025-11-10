@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_quanlykhachsan/API/auth_api_service.dart';
+import 'package:mobile_quanlykhachsan/screens/chat_screen.dart';
 import 'package:mobile_quanlykhachsan/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import '../config/app_colors.dart';
@@ -212,12 +213,24 @@ class HomeScreenState extends State<HomeScreen> {
                 _buildSearchCard(),
                 const SizedBox(height: AppDimensions.lg),
                 _buildRoomTypesSection(),
+                
               ],
             ),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ChatScreen()),
+      ),
+      icon: const Icon(Icons.smart_toy, size: 24),
+      label: const Text('Trợ lý AI', style: TextStyle(fontWeight: FontWeight.bold)),
+      backgroundColor: const Color(0xFF2196F3),
+      elevation: 8,
+    ),
     );
+    
   }
 
   /// ✅ App Bar với PROFILE MENU
@@ -335,16 +348,7 @@ class HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications_outlined,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          // TODO: Navigate to notifications
-                        },
-                      ),
+ 
                     ],
                   ),
                 ],
