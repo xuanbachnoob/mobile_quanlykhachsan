@@ -298,7 +298,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
                                 
                                 // ✅ GIÁ SAU GIẢM
                                 Text(
-                                  '${CurrencyFormatter.format(giasaugiam)} VNĐaaa',
+                                  '${CurrencyFormatter.format(giasaugiam)} VNĐ',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_quanlykhachsan/API/khachhang_api_service.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../config/app_colors.dart';
 import '../config/app_dimensions.dart';
+import '../providers/user_provider.dart';
 
 /// Màn hình WebView thanh toán VNPay
 class PaymentWebViewScreen extends StatefulWidget {
   final String paymentUrl;
   final int orderId;
   final int amount;
+  final int usedPoints; // ✅ THÊM: Số điểm đã sử dụng
 
   const PaymentWebViewScreen({
     super.key,
     required this.paymentUrl,
     required this.orderId,
     required this.amount,
+    this.usedPoints = 0, // ✅ THÊM: Mặc định 0
   });
 
   @override
@@ -23,7 +28,7 @@ class PaymentWebViewScreen extends StatefulWidget {
 class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
-  bool _isProcessing = false; // ✅ Tránh xử lý callback nhiều lần
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -35,6 +40,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     print('Payment URL: ${widget.paymentUrl}');
     print('Order ID: ${widget.orderId}');
     print('Amount: ${widget.amount} VNĐ');
+    print('Used Points: ${widget.usedPoints} điểm'); // ✅ LOG ĐIỂM
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     
     _initWebView();
@@ -45,7 +51,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.white)
       
-      // ✅ THÊM JAVASCRIPT CHANNEL
       ..addJavaScriptChannel(
         'FlutterWebView',
         onMessageReceived: (JavaScriptMessage message) {
@@ -55,7 +60,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           print('Message: ${message.message}');
           print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
           
-          // ✅ XỬ LÝ MESSAGE TỪ HTML
           if (message.message == 'payment_success') {
             _handlePaymentSuccess();
           } else if (message.message == 'payment_failed') {
@@ -81,7 +85,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             print('URL: $url');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
             
-            // ✅ DETECT PAYMENT CALLBACK URL
             if (!_isProcessing && 
                 (url.contains('/VNPayReturn') || 
                  url.contains('vnp_ResponseCode'))) {
@@ -114,14 +117,12 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       ..loadRequest(Uri.parse(widget.paymentUrl));
   }
 
-  // ✅ XỬ LÝ PAYMENT CALLBACK TỪ URL
   Future<void> _handlePaymentCallback(String url) async {
-    if (_isProcessing) return; // Tránh xử lý nhiều lần
+    if (_isProcessing) return;
     
     setState(() => _isProcessing = true);
 
     try {
-      // Parse URL parameters
       final uri = Uri.parse(url);
       final params = uri.queryParameters;
 
@@ -139,19 +140,14 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       print('Order Info: $vnpOrderInfo');
       print('Amount: $vnpAmount');
       print('Platform: $platform');
-      print('Widget Order ID: ${widget.orderId}');
-      print('Widget Amount: ${widget.amount}');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-      // ✅ NẾU LÀ MOBILE PLATFORM - ĐỢI HTML GỬI MESSAGE
       if (platform == 'mobile') {
         print('📱 Mobile platform detected - Waiting for JavaScript message...\n');
-        // Không làm gì, đợi JavaScript gửi message qua channel
         setState(() => _isProcessing = false);
         return;
       }
 
-      // ✅ NẾU KHÔNG PHẢI MOBILE - XỬ LÝ NGAY
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (vnpResponseCode == '00') {
@@ -165,8 +161,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     }
   }
 
-  // ✅ XỬ LÝ THANH TOÁN THÀNH CÔNG
-  void _handlePaymentSuccess() {
+  // ✅ CẬP NHẬT: XỬ LÝ THANH TOÁN THÀNH CÔNG + CẬP NHẬT ĐIỂM
+  Future<void> _handlePaymentSuccess() async {
     if (_isProcessing && !mounted) return;
     
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -174,105 +170,157 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Order ID: ${widget.orderId}');
     print('Amount: ${widget.amount}');
+    print('Used Points: ${widget.usedPoints}');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    // ✅ SHOW SUCCESS DIALOG
+    // ✅ SHOW LOADING DIALOG NGẮN GỌN
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
-        child: AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ✅ SUCCESS ICON
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 60,
-                ),
+        child: const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppDimensions.lg),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: AppDimensions.md),
+                  Text('Đang xử lý thanh toán...'),
+                ],
               ),
-              
-              const SizedBox(height: AppDimensions.lg),
-              
-              // ✅ TITLE
-              const Text(
-                'Thanh toán thành công!',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: AppDimensions.md),
-              
-              // ✅ THÔNG TIN
-              Container(
-                padding: const EdgeInsets.all(AppDimensions.md),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow('Mã hóa đơn', '${widget.orderId}'),
-                    const SizedBox(height: AppDimensions.sm),
-                    _buildInfoRow('Số tiền', '${widget.amount.toString().replaceAllMapped(
-                      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                      (Match m) => '${m[1]},',
-                    )} VNĐ'),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: AppDimensions.lg),
-              
-              const Text(
-                'Đang chuyển về trang chủ...',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
 
-    // ✅ DELAY 2 GIÂY RỒI VỀ HOME
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final userProvider = context.read<UserProvider>();
+      final makh = userProvider.currentUser?.makh;
+      final currentPoints = userProvider.currentUser?.diemthanhvien ?? 0;
+
+      if (makh == null) {
+        throw Exception('Không tìm thấy thông tin khách hàng');
+      }
+
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('🎯 POINTS CALCULATION');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('Current points: $currentPoints');
+      print('Points to deduct (used): ${widget.usedPoints}');
+      print('Amount paid: ${widget.amount}');
+      
+      // ✅ TÍNH ĐIỂM TÍCH LŨY: 1000 VND = 1 điểm
+      final pointsToAdd = (widget.amount / 1000).floor();
+      print('Points to add (earned): $pointsToAdd');
+      
+      // ✅ TÍNH TỔNG ĐIỂM MỚI
+      final newTotalPoints = (currentPoints - widget.usedPoints + pointsToAdd).clamp(0, 999999999);
+      print('New total points: $newTotalPoints');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+      // ✅ GỌI API CẬP NHẬT ĐIỂM
+      final khachhangApi = KhachhangApiService();
+      final updateSuccess = await khachhangApi.updatePoints(makh, newTotalPoints);
+
+      if (!updateSuccess) {
+        throw Exception('API trả về false');
+      }
+
+      print('✅ Points updated in database!\n');
+
+      // ✅ REFRESH USER DATA TỪ SERVER
+      print('🔄 Refreshing user data...\n');
+      await userProvider.refreshUserData();
+      
+      final updatedPoints = userProvider.currentUser?.diemthanhvien ?? newTotalPoints;
+      print('✅ User data refreshed! New points: $updatedPoints\n');
+
+      // ✅ CLOSE LOADING DIALOG
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // ✅ CHUYỂN THẲNG VỀ TRANG CHỦ (KHÔNG HIỂN THỊ DIALOG)
       if (mounted) {
         print('🏠 Navigating to home screen...\n');
         Navigator.of(context).pushNamedAndRemoveUntil(
-          '/', // ✅ Route trang chủ
-          (route) => false, // Remove tất cả routes
+          '/',
+          (route) => false,
         );
       }
-    });
+    } catch (e) {
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('❌ ERROR UPDATING POINTS');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('Error: $e');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+      // ✅ CLOSE LOADING DIALOG
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // ✅ SHOW ERROR TOAST HOẶC SNACKBAR (KHÔNG DÙNG DIALOG)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.warning_amber, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Thanh toán thành công!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text('Lỗi cập nhật điểm: ${e.toString()}'),
+                const SizedBox(height: 4),
+                const Text(
+                  'Vui lòng liên hệ CSKH',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange.shade700,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+
+        // ✅ VỀ TRANG CHỦ SAU 2 GIÂY
+        await Future.delayed(const Duration(seconds: 2));
+        
+        if (mounted) {
+          print('🏠 Navigating to home screen after error...\n');
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/',
+            (route) => false,
+          );
+        }
+      }
+    }
   }
 
-  // ✅ XỬ LÝ THANH TOÁN THẤT BẠI
   void _handlePaymentFailed({String? errorCode}) {
     if (_isProcessing && !mounted) return;
-    
+
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('❌ PAYMENT FAILED HANDLER');
+    print('❌ PAYMENT FAILED');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('Error Code: ${errorCode ?? "Unknown"}');
+    print('Error Code: $errorCode');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     showDialog(
@@ -285,7 +333,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ✅ ERROR ICON
             Container(
               width: 80,
               height: 80,
@@ -335,14 +382,14 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Đóng dialog
-              Navigator.of(context).pop(); // Đóng WebView
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
             child: const Text('Đóng'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Đóng dialog
+              Navigator.of(context).pop();
               Navigator.of(context).pushNamedAndRemoveUntil(
                 '/',
                 (route) => false,
@@ -358,7 +405,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     );
   }
 
-  // ✅ ĐÓNG VÀ VỀ HOME
   void _closeAndGoHome() {
     print('🏠 Closing WebView and going home...\n');
     if (mounted) {
@@ -367,30 +413,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         (route) => false,
       );
     }
-  }
-
-  // ✅ BUILD INFO ROW
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -411,7 +433,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             onPressed: () => _showCancelDialog(),
           ),
           actions: [
-            // ✅ REFRESH BUTTON
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
@@ -423,10 +444,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         ),
         body: Stack(
           children: [
-            // ✅ WEBVIEW
             WebViewWidget(controller: _controller),
             
-            // ✅ LOADING OVERLAY
             if (_isLoading)
               Container(
                 color: Colors.white,
@@ -455,7 +474,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     );
   }
 
-  // ✅ CANCEL DIALOG
   Future<bool?> _showCancelDialog() {
     return showDialog<bool>(
       context: context,
@@ -474,8 +492,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context, true); // Close dialog
-              Navigator.pop(context); // Close webview
+              Navigator.pop(context, true);
+              Navigator.pop(context);
             },
             child: const Text(
               'Hủy',

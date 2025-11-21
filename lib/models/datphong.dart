@@ -17,6 +17,7 @@ class Datphong {
   final String? chinhsachhuy;
   final String? ghichu;
   final int? makh;
+  final int? manv;
   final DateTime? ngayhuy;
   final List<Chitietdatphong>? chitietdatphongs;
   final List<Sudungdv>? sudungdichvus;
@@ -37,6 +38,7 @@ class Datphong {
     this.chinhsachhuy,
     this.ghichu,
     this.makh,
+    this.manv,
     this.ngayhuy,
     this.chitietdatphongs,
     this.sudungdichvus,
@@ -53,6 +55,7 @@ class Datphong {
       'makh': makh,
       'trangthai': trangthai,
       'trangthaithanhtoan': trangthaithanhtoan,
+      'manv': null,
     };
 
     // Optional fields

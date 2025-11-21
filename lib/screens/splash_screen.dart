@@ -4,7 +4,7 @@ import '../config/app_colors.dart';
 import '../config/app_text_styles.dart';
 import '../providers/user_provider.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
+import 'main_screen.dart'; // ✅ Thay đổi import
 import 'package:provider/provider.dart';
 
 /// Màn hình splash khi mở app
@@ -20,6 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  Timer? _navigationTimer; // ✅ Thêm biến lưu timer
 
   @override
   void initState() {
@@ -48,21 +49,26 @@ class _SplashScreenState extends State<SplashScreen>
     // Start animation
     _controller.forward();
 
-    // Navigate sau 2.5 giây
-    Timer(const Duration(milliseconds: 2500), _navigateToNextScreen);
+    // ✅ Lưu timer vào biến để có thể cancel
+    _navigationTimer = Timer(
+      const Duration(milliseconds: 2500),
+      _navigateToNextScreen,
+    );
   }
 
   /// Navigate dựa trên login status
   void _navigateToNextScreen() {
-    final userProvider = context.read<UserProvider>();
+    // ✅ Kiểm tra mounted trước khi navigate
+    if (!mounted) return;
 
-    // Check xem user đã login chưa
+    final userProvider = context.read<UserProvider>();
     final bool isLoggedIn = userProvider.isLoggedIn;
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
-          return isLoggedIn ? const HomeScreen() : const LoginScreen();
+          // ✅ Đổi HomeScreen thành MainScreen
+          return isLoggedIn ? const MainScreen() : const LoginScreen();
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
@@ -81,6 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
+    _navigationTimer?.cancel(); // ✅ Cancel timer khi dispose
     _controller.dispose();
     super.dispose();
   }
