@@ -423,6 +423,22 @@ class _BookingCardState extends State<BookingCard> {
                 widget.booking.trangthai == 'Đã trả')
               Row(
                 children: [
+                  if (widget.booking.trangthai == 'Đang ở' || 
+                      widget.booking.trangthai == 'Đã đặt')
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showChangeRoomDialog(context),
+                        icon: const Icon(Icons.swap_horiz, size: 18),
+                        label: const Text('Đổi phòng'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: Colors.blue),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
                   if (widget.booking.trangthai == 'Đã đặt')
                     Expanded(
                       child: ElevatedButton.icon(
@@ -440,21 +456,7 @@ class _BookingCardState extends State<BookingCard> {
                         ),
                       ),
                     ),
-                  if (widget.booking.trangthai == 'Đang ở')
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showChangeRoomDialog(context),
-                        icon: const Icon(Icons.swap_horiz, size: 18),
-                        label: const Text('Đổi phòng'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: Colors.blue),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
+                  
                   // ✅ NÚT ĐÁNH GIÁ - CÓ KIỂM TRA
                   if (widget.booking.trangthai == 'Đã trả')
                     Expanded(
@@ -685,25 +687,239 @@ class _BookingCardState extends State<BookingCard> {
     );
   }
 
-  void _showChangeRoomDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+void _showChangeRoomDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      builder: (_) => Container(
-        height: 400,
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: Text(
-            'UI đổi phòng (booking #${widget.booking.madatphong})',
-            style: const TextStyle(fontSize: 16),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ✅ HEADER
+            const Text(
+              'Yêu Cầu Đổi Phòng',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E3A8A), // Màu xanh navy
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+
+            // ✅ THÔNG BÁO
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3CD), // Màu vàng nhạt
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFFFFC107),
+                  width: 1,
+                ),
+              ),
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: const TextSpan(
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF856404),
+                    height: 1.5,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'Yêu cầu đổi phòng cần ',
+                    ),
+                    TextSpan(
+                      text: 'được xác nhận bởi nhân viên',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: ' và ',
+                    ),
+                    TextSpan(
+                      text: 'KHÔNG THỂ HỦY',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' sau khi duyệt.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // ✅ ĐƯỜNG KẺ
+            const Divider(height: 1, thickness: 1),
+            const SizedBox(height: 20),
+
+            // ✅ THÔNG TIN LIÊN HỆ
+            const Text(
+              'Vui lòng liên hệ trực tiếp:',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+
+            // ✅ 3 CÁCH LIÊN HỆ
+            Row(
+              children: [
+                // HOTLINE
+                Expanded(
+                  child: _buildContactCard(
+                    icon: Icons.phone,
+                    iconColor: const Color(0xFF2196F3),
+                    label: 'Hotline',
+                    value: '1900 9999',
+                    onTap: () {
+                      // TODO: Gọi điện
+                      print('Calling 1900 9999');
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // EMAIL
+                Expanded(
+                  child: _buildContactCard(
+                    icon: Icons.email,
+                    iconColor: const Color(0xFF2196F3),
+                    label: 'Email',
+                    value: 'thanhtrakhachsan@gmail.com',
+                    fontSize: 10,
+                    onTap: () {
+                      // TODO: Gửi email
+                      print('Send email');
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // LỄ TÂN
+                Expanded(
+                  child: _buildContactCard(
+                    icon: Icons.business,
+                    iconColor: const Color(0xFF2196F3),
+                    label: 'Lễ tân',
+                    value: 'Tầng 1 - Khách sạn',
+                    fontSize: 10,
+                    onTap: () {
+                      print('Go to reception');
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // ✅ NÚT ĐÓNG
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.check, size: 18),
+              label: const Text('Đã hiểu'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A), // Màu xanh navy
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+/// ✅ CARD LIÊN HỆ
+Widget _buildContactCard({
+  required IconData icon,
+  required Color iconColor,
+  required String label,
+  required String value,
+  double fontSize = 12,
+  VoidCallback? onTap,
+}) {
+  return InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(12),
+    child: Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // ICON
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // LABEL
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+
+          // VALUE
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: Colors.grey.shade700,
+              height: 1.3,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
     void _cancelBooking(BuildContext context) async {
     final booking = widget.booking;

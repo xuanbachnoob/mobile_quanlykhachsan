@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_quanlykhachsan/API/booking_api_service.dart';
 import 'package:mobile_quanlykhachsan/API/khachhang_api_service.dart';
+import 'package:mobile_quanlykhachsan/models/chitiethoadon.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../config/app_colors.dart';
@@ -12,6 +14,7 @@ class PaymentWebViewScreen extends StatefulWidget {
   final int orderId;
   final int amount;
   final int usedPoints; // ✅ THÊM: Số điểm đã sử dụng
+  final int madatphong; // ✅ THÊM: Mã đặt phòng
 
   const PaymentWebViewScreen({
     super.key,
@@ -19,6 +22,7 @@ class PaymentWebViewScreen extends StatefulWidget {
     required this.orderId,
     required this.amount,
     this.usedPoints = 0, // ✅ THÊM: Mặc định 0
+    required this.madatphong, // ✅ THÊM: Mã đặt phòng
   });
 
   @override
@@ -225,7 +229,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       // ✅ GỌI API CẬP NHẬT ĐIỂM
       final khachhangApi = KhachhangApiService();
       final updateSuccess = await khachhangApi.updatePoints(makh, newTotalPoints);
-
+      final chitiethoadon = await BookingApiService().postChitiethoadon(
+        mahoadon: widget.orderId,
+        madatphong: widget.madatphong,
+        diemsudung: widget.usedPoints,
+      );
       if (!updateSuccess) {
         throw Exception('API trả về false');
       }

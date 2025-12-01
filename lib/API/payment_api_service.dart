@@ -50,13 +50,13 @@ class PaymentApiService {
 //     print('Response ${response.statusCode}: ${response.body}\n');
 
 //     if (response.statusCode == 200) {
-//       print('✅ Payment confirmed!\n');
-//       return; // ✅ Không cần parse response
+//       print(' Payment confirmed!\n');
+//       return; //  Không cần parse response
 //     } else {
 //       throw Exception('HTTP ${response.statusCode}: ${response.body}');
 //     }
 //   } catch (e) {
-//     print('❌ Confirm error: $e\n');
+//     print(' Confirm error: $e\n');
 //     rethrow;
 //   }
 // }

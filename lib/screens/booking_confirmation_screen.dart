@@ -1265,6 +1265,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
             orderId: mahoadon,
             amount: finalTotal,
             usedPoints: _usedPoints,
+            madatphong: result['madatphong']!,
           ),
         ),
       );

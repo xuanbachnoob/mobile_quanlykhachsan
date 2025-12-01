@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile_quanlykhachsan/models/chitiethoadon.dart';
 import '../config/api_config.dart';
 import '../models/datphong.dart';
 import '../models/chitietdatphong.dart';
@@ -148,6 +149,56 @@ class BookingApiService {
     
   } catch (e) {
     rethrow;
+  }
+}
+
+/// ✅ TẠO CHI TIẾT HÓA ĐƠN - GIẢM GIÁ BẰNG ĐIỂM THÀNH VIÊN
+Future<Map<String, dynamic>> postChitiethoadon({
+  required int mahoadon,
+  required int madatphong,
+  required int diemsudung,
+}) async {
+  final url = Uri.parse('${ApiConfig.baseUrl}/Chitiethoadons/themdiem');
+
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  print('💳 TẠO CHI TIẾT HÓA ĐƠN - DÙNG ĐIỂM');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  print('URL: $url');
+  print('Mahoadon: $mahoadon');
+  print('Madatphong: $madatphong');
+  print('Diemsudung: $diemsudung');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+  try {
+    // ✅ GỬI DƯỚI DẠNG FORM-DATA (Backend dùng [FromForm])
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'mahoadon': mahoadon.toString(),
+        'madatphong': madatphong.toString(),
+        'diemsudung': diemsudung.toString(),
+      },
+    ).timeout(ApiConfig.connectionTimeout);
+
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    print('📥 RESPONSE CHI TIẾT HÓA ĐƠN');
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = json.decode(response.body);
+      print('✅ Sử dụng điểm thành công!\n');
+      return data;
+    } else {
+      throw Exception('Không thể sử dụng điểm. Mã lỗi: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('❌ Error using points: $e\n');
+    throw Exception('Lỗi kết nối: $e');
   }
 }
 }
