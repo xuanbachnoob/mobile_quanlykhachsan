@@ -18,16 +18,13 @@ class BookingApiService {
         body: json.encode(datphong.toJson()),
       ).timeout(ApiConfig.connectionTimeout);
 
-      print('📡 Response: ${response.statusCode}');
-      print('📦 Body: ${response.body}');
-
       if (response.statusCode == 201 || response.statusCode == 200) {
         return Datphong.fromJson(json.decode(response.body));
       } else {
         throw Exception('Không thể tạo đặt phòng. Mã lỗi: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error creating Datphong: $e');
+
       throw Exception('Lỗi kết nối: $e');
     }
   }
@@ -36,8 +33,6 @@ class BookingApiService {
   Future<void> createChitietdatphong(Chitietdatphong chitiet) async {
     final url = Uri.parse('${ApiConfig.chitietDatphongEndpoint}/mobile');
 
-    print('📤 Creating Chitietdatphong...');
-    print('Request: ${json.encode(chitiet.toJson())}');
 
     try {
       final response = await http.post(
@@ -46,13 +41,13 @@ class BookingApiService {
         body: json.encode(chitiet.toJson()),
       ).timeout(ApiConfig.connectionTimeout);
 
-      print('📡 Response: ${response.statusCode}');
+
 
       if (response.statusCode != 201 && response.statusCode != 200) {
         throw Exception('Không thể tạo chi tiết đặt phòng. Mã lỗi: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error creating Chitietdatphong: $e');
+
       throw Exception('Lỗi kết nối: $e');
     }
   }
@@ -60,7 +55,7 @@ class BookingApiService {
   /// 3. Tạo sử dụng dịch vụ (Stored Procedure tự tính toán)
   Future<void> createSudungdv(Sudungdv sudungdv) async {
     final url = Uri.parse('${ApiConfig.baseUrl}/Sudungdvs/sudungdv');
-    // ✅ CHỈ GỬI 3 FIELDS: madatphong, madv, soluong
+    //  CHỈ GỬI 3 FIELDS: madatphong, madv, soluong
     final requestBody = {
       'madatphong': sudungdv.madatphong,
       'madv': sudungdv.madv,
@@ -77,7 +72,6 @@ class BookingApiService {
         throw Exception('Không thể tạo sử dụng dịch vụ. Mã lỗi: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error creating Sudungdv: $e');
       throw Exception('Lỗi kết nối: $e');
     }
   }
@@ -104,15 +98,11 @@ class BookingApiService {
   required List<Map<String, int>> services,
 }) async {
   try {
-    print('🚀 ===== STARTING FULL BOOKING FLOW =====');
 
-    // STEP 1: Tạo đặt phòng
-    print('\n📝 STEP 1: Creating Datphong...');
+
     final createdDatphong = await createDatphong(datphong);
     final madatphong = createdDatphong.madatphong!;
-    print('✅ Created Datphong with ID: $madatphong');
 
-    // STEP 2: Tạo chi tiết đặt phòng
 
     for (var room in rooms) {
       await createChitietdatphong(
@@ -127,7 +117,6 @@ class BookingApiService {
 
     final mahoadon = await createHoadon();
 
-    // STEP 3: Tạo sử dụng dịch vụ
     if (services.isNotEmpty) {
 
       for (var service in services) {
@@ -152,7 +141,7 @@ class BookingApiService {
   }
 }
 
-/// ✅ TẠO CHI TIẾT HÓA ĐƠN - GIẢM GIÁ BẰNG ĐIỂM THÀNH VIÊN
+/// TẠO CHI TIẾT HÓA ĐƠN - GIẢM GIÁ BẰNG ĐIỂM THÀNH VIÊN
 Future<Map<String, dynamic>> postChitiethoadon({
   required int mahoadon,
   required int madatphong,
@@ -160,17 +149,8 @@ Future<Map<String, dynamic>> postChitiethoadon({
 }) async {
   final url = Uri.parse('${ApiConfig.baseUrl}/Chitiethoadons/themdiem');
 
-  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  print('💳 TẠO CHI TIẾT HÓA ĐƠN - DÙNG ĐIỂM');
-  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  print('URL: $url');
-  print('Mahoadon: $mahoadon');
-  print('Madatphong: $madatphong');
-  print('Diemsudung: $diemsudung');
-  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
   try {
-    // ✅ GỬI DƯỚI DẠNG FORM-DATA (Backend dùng [FromForm])
+    // GỬI DƯỚI DẠNG FORM-DATA (Backend dùng [FromForm])
     final response = await http.post(
       url,
       headers: {
@@ -183,21 +163,15 @@ Future<Map<String, dynamic>> postChitiethoadon({
       },
     ).timeout(ApiConfig.connectionTimeout);
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('📥 RESPONSE CHI TIẾT HÓA ĐƠN');
-    print('Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(response.body);
-      print('✅ Sử dụng điểm thành công!\n');
+
       return data;
     } else {
       throw Exception('Không thể sử dụng điểm. Mã lỗi: ${response.statusCode}');
     }
   } catch (e) {
-    print('❌ Error using points: $e\n');
+
     throw Exception('Lỗi kết nối: $e');
   }
 }

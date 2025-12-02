@@ -19,30 +19,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // ✅ REFRESH KHI VÀO MÀNG HÌNH
+    // REFRESH KHI VÀO MÀNG HÌNH
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshUserData();
     });
   }
 
-  /// ✅ REFRESH USER DATA
+  /// REFRESH USER DATA
   Future<void> _refreshUserData() async {
     if (_isRefreshing) return;
 
     setState(() => _isRefreshing = true);
 
     try {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🔄 REFRESHING USER DATA ON PROFILE SCREEN');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       final userProvider = context.read<UserProvider>();
       await userProvider.refreshUserData();
 
-      print('✅ User data refreshed successfully!');
+
       print('   - Points: ${userProvider.currentUser?.diemthanhvien}\n');
     } catch (e) {
-      print('❌ Error refreshing user data: $e\n');
+      print('Error refreshing user data: $e\n');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
-          // ✅ NÚT REFRESH
+          //  NÚT REFRESH
           IconButton(
             icon: _isRefreshing
                 ? const SizedBox(
@@ -98,13 +95,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: user == null
           ? const Center(child: Text('Vui lòng đăng nhập'))
           : RefreshIndicator(
-              // ✅ PULL-TO-REFRESH
+              //  PULL-TO-REFRESH
               onRefresh: _refreshUserData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: [
-                    // ✅ HEADER WITH AVATAR
+                    // HEADER WITH AVATAR
                     Container(
                       width: double.infinity,
                       decoration: const BoxDecoration(
@@ -172,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    // ✅ INFORMATION CARDS
+                    // INFORMATION CARDS
                     Padding(
                       padding: const EdgeInsets.all(AppDimensions.md),
                       child: Column(
@@ -180,13 +177,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           const SizedBox(height: AppDimensions.md),
 
-                          // ✅ ĐIỂM THÀNH VIÊN (TỰ ĐỘNG CẬP NHẬT)
+                          // ĐIỂM THÀNH VIÊN (TỰ ĐỘNG CẬP NHẬT)
                           if (user.diemthanhvien != null)
                             _buildPointsCard(user.diemthanhvien!),
                           
                           const SizedBox(height: AppDimensions.lg),
 
-                          // ✅ HỌ TÊN
+                          // HỌ TÊN
                           _buildInfoCard(
                             icon: Icons.person_outline,
                             label: 'Họ và tên',
@@ -194,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             iconColor: AppColors.primary,
                           ),
 
-                          // ✅ EMAIL
+                          //  EMAIL
                           _buildInfoCard(
                             icon: Icons.email_outlined,
                             label: 'Email',
@@ -202,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             iconColor: Colors.orange,
                           ),
 
-                          // ✅ SỐ ĐIỆN THOẠI
+                          //  SỐ ĐIỆN THOẠI
                           _buildInfoCard(
                             icon: Icons.phone_outlined,
                             label: 'Số điện thoại',
@@ -210,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             iconColor: Colors.green,
                           ),
 
-                          // ✅ CCCD
+                          //  CCCD
                           _buildInfoCard(
                             icon: Icons.credit_card_outlined,
                             label: 'CCCD/CMND',
@@ -220,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           const SizedBox(height: AppDimensions.xl),
 
-                          // ✅ EDIT BUTTON
+                          //  EDIT BUTTON
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
@@ -233,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 );
 
-                                // ✅ REFRESH SAU KHI EDIT
+                                //  REFRESH SAU KHI EDIT
                                 if (result == true && mounted) {
                                   _refreshUserData();
                                 }
@@ -264,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// ✅ CARD ĐIỂM THÀNH VIÊN
+  ///  CARD ĐIỂM THÀNH VIÊN
   Widget _buildPointsCard(int points) {
     return Container(
       width: double.infinity,
@@ -316,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          // ✅ INDICATOR NẾU ĐANG REFRESH
+          //  INDICATOR NẾU ĐANG REFRESH
           if (_isRefreshing)
             const SizedBox(
               width: 20,
@@ -337,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// ✅ CARD THÔNG TIN
+  ///  CARD THÔNG TIN
   Widget _buildInfoCard({
     required IconData icon,
     required String label,

@@ -47,7 +47,7 @@ class Datphong {
     this.hoadons,
   });
 
-  /// ✅ toJson CHỈ GỬI: ngaynhanphong, ngaytraphong, makh, ghichu
+  /// toJson CHỈ GỬI: ngaynhanphong, ngaytraphong, makh, ghichu
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'ngaynhanphong': ngaynhanphong.toIso8601String().split('T')[0],

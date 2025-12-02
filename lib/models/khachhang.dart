@@ -11,7 +11,7 @@ class Khachhang {
   final DateTime? ngaytao;
   final String? matkhau;
   
-  // ✅ THÊM: Role và Token cho login
+  //  THÊM: Role và Token cho login
   final String? role;
   final String? token;
 
@@ -31,7 +31,7 @@ class Khachhang {
     this.token,
   });
 
-  /// ✅ Factory CŨ (giữ nguyên để không break code)
+  ///  Factory CŨ (giữ nguyên để không break code)
   factory Khachhang.fromLoginResponse(Map<String, dynamic> json, String emailOrSdt) {
     String? emailValue;
     String? sdtValue;
@@ -48,12 +48,12 @@ class Khachhang {
     );
   }
 
-  /// ✅ Factory MỚI - Parse từ login response CÓ makh
+  ///  Factory MỚI - Parse từ login response CÓ makh
   factory Khachhang.fromLoginJson(Map<String, dynamic> json) {
     print('🔍 Parsing Khachhang from login JSON: $json');
     
     return Khachhang(
-      makh: json['makh'] as int?,           // ← Parse makh
+      makh: json['makh'] as int?,           
       hoten: json['hoten'] as String? ?? '',
       email: json['email'] as String?,
       sdt: json['sdt'] as String?,
@@ -67,7 +67,7 @@ class Khachhang {
   /// Factory cho API GetProfile (JSON đầy đủ)
   factory Khachhang.fromJson(Map<String, dynamic> json) {
     return Khachhang(
-      makh: json['makh'] as int? ?? json['Makh'] as int?,  // Support both formats
+      makh: json['makh'] as int? ?? json['Makh'] as int?,  
       hoten: json['hoten'] as String? ?? json['Hoten'] as String? ?? '',
       email: json['email'] as String? ?? json['Email'] as String?,
       sdt: json['sdt'] as String? ?? json['Sdt'] as String?,
@@ -87,7 +87,7 @@ class Khachhang {
     );
   }
 
-  /// Hàm copy with
+
   Khachhang copyWith({
     int? makh,
     String? hoten,

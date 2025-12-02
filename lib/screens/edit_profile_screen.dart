@@ -49,7 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  // ✅ VALIDATE HỌ TÊN (TỐI THIỂU 2 TỪ)
+  //  VALIDATE HỌ TÊN (TỐI THIỂU 2 TỪ)
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Vui lòng nhập họ tên';
@@ -71,7 +71,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
-  // ✅ VALIDATE EMAIL
+  //  VALIDATE EMAIL
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Vui lòng nhập email';
@@ -82,7 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
-  // ✅ VALIDATE SỐ ĐIỆN THOẠI
+  //  VALIDATE SỐ ĐIỆN THOẠI
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập số điện thoại';
@@ -103,7 +103,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
-  // ✅ VALIDATE CCCD
+  //  VALIDATE CCCD
   String? _validateCccd(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập CCCD/CMND';
@@ -141,7 +141,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // ✅ GỌI API VỚI CHỈ 4 FIELDS
+      //  GỌI API VỚI CHỈ 4 FIELDS
       final result = await KhachhangApiService().updateProfile(
         makh: user.makh!,
         hoten: _nameController.text.trim(),
@@ -152,7 +152,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (!mounted) return;
 
-      // ✅ UPDATE PROVIDER
+      //  UPDATE PROVIDER
       final updatedUser = user.copyWith(
         hoten: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -241,7 +241,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppDimensions.xl),
 
-                // ✅ HỌ TÊN
+                //  HỌ TÊN
                 _buildTextField(
                   controller: _nameController,
                   label: 'Họ và tên',
@@ -250,7 +250,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppDimensions.md),
 
-                // ✅ EMAIL
+                //  EMAIL
                 _buildTextField(
                   controller: _emailController,
                   label: 'Email',
@@ -260,7 +260,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppDimensions.md),
 
-                // ✅ SỐ ĐIỆN THOẠI
+                //  SỐ ĐIỆN THOẠI
                 _buildTextField(
                   controller: _phoneController,
                   label: 'Số điện thoại',
@@ -274,7 +274,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppDimensions.md),
 
-                // ✅ CCCD
+                //  CCCD
                 _buildTextField(
                   controller: _cccdController,
                   label: 'CCCD/CMND',
@@ -288,7 +288,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: AppDimensions.xl),
 
-                // ✅ INFO - ĐIỂM THÀNH VIÊN
+                //  INFO - ĐIỂM THÀNH VIÊN
                 if (user?.diemthanhvien != null)
                   Container(
                     padding: const EdgeInsets.all(AppDimensions.md),
@@ -327,7 +327,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 const SizedBox(height: AppDimensions.xl),
 
-                // ✅ SAVE BUTTON
+                //  SAVE BUTTON
                 PrimaryButton(
                   text: 'Lưu thay đổi',
                   onPressed: _isLoading ? null : _updateProfile,

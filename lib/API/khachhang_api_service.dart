@@ -18,33 +18,20 @@ class KhachhangApiService {
       '${ApiConfig.khachhangEndpoint}/capnhatthongtinmb/$makh',
     );
 
-    // ✅ CHỈ GỬI 4 FIELDS
+
     final body = jsonEncode({
       'makh': makh,
       'hoten': hoten,
       'email': email,
       'sdt': sdt,
       'cccd': cccd,
-      // ❌ KHÔNG GỬI: matkhau, diemthanhvien, token, v.v.
-    });
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('📝 UPDATE PROFILE REQUEST');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('URL: $url');
-    print('Body: $body');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    });
 
     try {
       final response = await http
           .put(url, headers: ApiConfig.headers, body: body)
           .timeout(ApiConfig.connectionTimeout);
-
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('📥 UPDATE PROFILE RESPONSE');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
@@ -63,7 +50,7 @@ class KhachhangApiService {
         }
       }
     } catch (e) {
-      print('❌ Update error: $e\n');
+
       rethrow;
     }
   }
@@ -73,21 +60,12 @@ class KhachhangApiService {
   Future<Khachhang> fetchCustomer(int makh) async {
     final url = Uri.parse('${ApiConfig.khachhangEndpoint}/$makh');
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔎 FETCH CUSTOMER');
-    print('URL: $url');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     try {
       final response = await http
           .get(url, headers: ApiConfig.headers)
           .timeout(ApiConfig.connectionTimeout);
 
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('📥 FETCH CUSTOMER RESPONSE');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -104,7 +82,7 @@ class KhachhangApiService {
         );
       }
     } catch (e) {
-      print('❌ Fetch error: $e\n');
+
       rethrow;
     }
   }
@@ -119,19 +97,10 @@ class KhachhangApiService {
     Future<bool> updatePoints(int makh, int newPoints) async {
     final url = Uri.parse('${ApiConfig.khachhangEndpoint}/capnhatdiem/$makh');
 
-    // ✅ GỬI ĐÚNG FORMAT BACKEND YÊU CẦU
+    // GỬI ĐÚNG FORMAT BACKEND YÊU CẦU
     final body = jsonEncode({
       'diemthanhvien': newPoints, // Backend đọc field này
     });
-
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔁 UPDATE CUSTOMER POINTS');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('URL: $url');
-    print('Makh: $makh');
-    print('New Points: $newPoints');
-    print('Body: $body');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     try {
       final response = await http
@@ -145,32 +114,23 @@ class KhachhangApiService {
           )
           .timeout(const Duration(seconds: 30));
 
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('📥 UPDATE POINTS RESPONSE');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('✅ Points updated successfully!');
-        print('   - Message: ${responseData['message']}');
-        print('   - Makh: ${responseData['makh']}');
-        print('   - Diem: ${responseData['diem']}\n');
+
         return true;
       } else {
         final errorData = jsonDecode(response.body);
         throw Exception(errorData['message'] ?? 'Cập nhật điểm thất bại');
       }
     } on TimeoutException {
-      print('❌ Request timeout\n');
+
       throw Exception('Yêu cầu quá thời gian. Vui lòng thử lại.');
     } on SocketException {
-      print('❌ No internet connection\n');
+
       throw Exception('Không có kết nối internet');
     } catch (e) {
-      print('❌ Update points error: $e\n');
+
       rethrow;
     }
   }
@@ -189,7 +149,7 @@ class KhachhangApiService {
       final newPoints = currentPoints - pointsToDeduct;
       return await updatePoints(makh, newPoints);
     } catch (e) {
-      print('❌ deductPointsSafe error: $e\n');
+
       rethrow;
     }
   }

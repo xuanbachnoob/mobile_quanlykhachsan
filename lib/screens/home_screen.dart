@@ -119,7 +119,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ✅ THÊM METHODS XỬ LÝ MENU
+  // THÊM METHODS XỬ LÝ MENU
   void _handleMenuSelection(String value) {
     switch (value) {
       case 'profile':
@@ -233,7 +233,7 @@ class HomeScreenState extends State<HomeScreen> {
     
   }
 
-  /// ✅ App Bar với PROFILE MENU
+  ///  App Bar với PROFILE MENU
   Widget _buildAppBar(String userName) {
     return SliverAppBar(
       expandedHeight: 120,
@@ -251,7 +251,7 @@ class HomeScreenState extends State<HomeScreen> {
                 children: [
                   Row(
                     children: [
-                      // ✅ PROFILE MENU BUTTON
+                      //  PROFILE MENU BUTTON
                       PopupMenuButton<String>(
                         offset: const Offset(0, 50),
                         shape: RoundedRectangleBorder(

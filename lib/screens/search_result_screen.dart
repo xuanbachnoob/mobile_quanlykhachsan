@@ -58,7 +58,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     final vouchers = await _voucherService.getActiveVouchers(widget.checkInDate);
     
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('📦 VOUCHERS LOADED');
+    print('VOUCHERS LOADED');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Total: ${vouchers.length} vouchers');
     
@@ -77,10 +77,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       _loadingVouchers = false;
     });
     
-    print('\n✅ Voucher Map created with keys: ${_voucherMap.keys.toList()}');
+    print('\n Voucher Map created with keys: ${_voucherMap.keys.toList()}');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   } catch (e) {
-    print('❌ Error loading vouchers: $e');
+    print(' Error loading vouchers: $e');
     setState(() => _loadingVouchers = false);
   }
 }
@@ -150,7 +150,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
           .length;
       final hasAvailableRoom = addedCount < roomGroup.danhsachphong.length;
 
-      // ✅ LẤY VOUCHER
+      //  LẤY VOUCHER
       final voucher = _voucherMap[roomGroup.loaiphong.Maloaiphong];
       final giagoc = roomGroup.loaiphong.Giacoban;
       final giagiam = voucher?.giagiam ?? 0;
@@ -166,7 +166,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
-        // ✅ THÊM STACK ĐỂ CHỨA RIBBON
+        //  THÊM STACK ĐỂ CHỨA RIBBON
         child: Stack(
           children: [
             Column(
@@ -273,7 +273,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
                       
                       const SizedBox(height: AppDimensions.md),
 
-                      // ✅ GIÁ VÀ BUTTON
+                      //  GIÁ VÀ BUTTON
                       Row(
                         children: [
                           Expanded(
@@ -283,7 +283,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
                                 Text('Giá từ', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                                 const SizedBox(height: 4),
                                 
-                                // ✅ GIÁ GỐC (GẠCH NGANG NẾU CÓ VOUCHER)
+                                //  GIÁ GỐC (GẠCH NGANG NẾU CÓ VOUCHER)
                                 if (hasDiscount) ...[
                                   Text(
                                     '${CurrencyFormatter.format(giagoc)} VNĐ',
@@ -296,7 +296,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
                                   const SizedBox(height: 2),
                                 ],
                                 
-                                // ✅ GIÁ SAU GIẢM
+                                //  GIÁ SAU GIẢM
                                 Text(
                                   '${CurrencyFormatter.format(giasaugiam)} VNĐ',
                                   style: TextStyle(
@@ -336,7 +336,7 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
               ],
             ),
 
-            // ✅ RIBBON VOUCHER GÓC TRÊN TRÁI
+            //  RIBBON VOUCHER GÓC TRÊN TRÁI
             if (hasDiscount)
               Positioned(
                 top: 0,
@@ -376,25 +376,25 @@ Widget _buildGroupedRoomCard(LoaiphongGrouped roomGroup) {
 
 void _autoAddRoom(LoaiphongGrouped roomGroup, BookingCartProvider cart) {
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  print('🤖 AUTO ADD ROOM');
+  print('AUTO ADD ROOM');
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   print('Loại phòng: ${roomGroup.loaiphong.Tenloaiphong}');
   print('Mã loại phòng: ${roomGroup.loaiphong.Maloaiphong}');
   
   // Kiểm tra voucher map
-  print('🔍 Voucher Map contains ${_voucherMap.length} vouchers');
-  print('🔍 Voucher Map Keys: ${_voucherMap.keys.toList()}');
+  print(' Voucher Map contains ${_voucherMap.length} vouchers');
+  print('Voucher Map Keys: ${_voucherMap.keys.toList()}');
   
   // Lấy voucher
   final voucher = _voucherMap[roomGroup.loaiphong.Maloaiphong];
   
   if (voucher != null) {
-    print('✅ Found voucher:');
+    print(' Found voucher:');
     print('   - Tên: ${voucher.tenvoucher}');
     print('   - Giảm: ${voucher.giagiam} VNĐ');
     print('   - Mã loại phòng: ${voucher.maloaiphong}');
   } else {
-    print('❌ No voucher found for this room type');
+    print(' No voucher found for this room type');
   }
   
   final addedRoomIds = cart.selectedRooms
@@ -419,15 +419,15 @@ void _autoAddRoom(LoaiphongGrouped roomGroup, BookingCartProvider cart) {
     voucher: voucher, // ← QUAN TRỌNG
   );
   
-  print('🔍 Voucher attached: ${roomToAdd.voucher != null}');
-  print('🔍 Has discount: ${roomToAdd.hasVoucher}');
-  print('🔍 Giá sau giảm: ${roomToAdd.giaSauGiam} VNĐ');
+  print(' Voucher attached: ${roomToAdd.voucher != null}');
+  print(' Has discount: ${roomToAdd.hasVoucher}');
+  print(' Giá sau giảm: ${roomToAdd.giaSauGiam} VNĐ');
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   
   cart.addRoom(roomToAdd);
 }
 
-// ✅ XEM PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
+//  XEM PHÒNG ĐÃ THÊM CỦA LOẠI NÀY
 void _showAddedRooms(LoaiphongGrouped roomGroup) {
   final cart = context.read<BookingCartProvider>();
   final addedRooms = cart.selectedRooms
@@ -492,7 +492,7 @@ void _showAddedRooms(LoaiphongGrouped roomGroup) {
 }
 
   
-  // ✅ SORT ROOM GROUPS
+  //  SORT ROOM GROUPS
   List<LoaiphongGrouped> _sortRoomGroups(List<LoaiphongGrouped> groups) {
     switch (_sortBy) {
       case 'price_low':
@@ -687,7 +687,7 @@ void _showAddedRooms(LoaiphongGrouped roomGroup) {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => _showCartDetails(), // ✅ Show modal
+              onTap: () => _showCartDetails(), //  Show modal
               child: Padding(
                 padding: const EdgeInsets.all(AppDimensions.md),
                 child: Row(

@@ -68,7 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     _animationController.forward();
   }
 
-  // ✅ VALIDATE HỌ TÊN (TỐI THIỂU 2 TỪ)
+  //  VALIDATE HỌ TÊN (TỐI THIỂU 2 TỪ)
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Vui lòng nhập họ tên';
@@ -90,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  // ✅ VALIDATE EMAIL
+  //  VALIDATE EMAIL
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập email';
@@ -101,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  // ✅ VALIDATE SỐ ĐIỆN THOẠI
+  //  VALIDATE SỐ ĐIỆN THOẠI
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập số điện thoại';
@@ -122,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  // ✅ VALIDATE CCCD
+  //  VALIDATE CCCD
   String? _validateCccd(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập CCCD/CMND';
@@ -139,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  // ✅ VALIDATE MẬT KHẨU
+  //  VALIDATE MẬT KHẨU
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập mật khẩu';
@@ -164,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return null;
   }
 
-  // ✅ VALIDATE XÁC NHẬN MẬT KHẨU
+  //  VALIDATE XÁC NHẬN MẬT KHẨU
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng xác nhận mật khẩu';
@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     setState(() => _isLoading = true);
 
     try {
-      print('📝 Registering user...');
+      print('Registering user...');
 
       await _authService.register(
         hoten: _nameController.text.trim(),
@@ -260,7 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         );
       }
     } catch (e) {
-      print('❌ Register error: $e');
+      print(' Register error: $e');
 
       setState(() => _isLoading = false);
 
@@ -424,7 +424,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.lg),
 
-              // ✅ HỌ TÊN
+              //  HỌ TÊN
               CustomTextField(
                 controller: _nameController,
                 label: 'Họ và tên',
@@ -434,7 +434,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.md),
 
-              // ✅ EMAIL
+              //  EMAIL
               CustomTextField(
                 controller: _emailController,
                 label: 'Email',
@@ -445,7 +445,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.md),
 
-              // ✅ SỐ ĐIỆN THOẠI
+              //  SỐ ĐIỆN THOẠI
               CustomTextField(
                 controller: _phoneController,
                 label: 'Số điện thoại',
@@ -460,7 +460,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.md),
 
-              // ✅ CCCD/CMND
+              //  CCCD/CMND
               CustomTextField(
                 controller: _cccdController,
                 label: 'CCCD/CMND',
@@ -475,7 +475,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.md),
 
-              // ✅ MẬT KHẨU
+              //  MẬT KHẨU
               CustomTextField(
                 controller: _passwordController,
                 label: 'Mật khẩu',
@@ -494,7 +494,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               const SizedBox(height: AppDimensions.md),
 
-              // ✅ XÁC NHẬN MẬT KHẨU
+              //  XÁC NHẬN MẬT KHẨU
               CustomTextField(
                 controller: _confirmPasswordController,
                 label: 'Xác nhận mật khẩu',
@@ -514,7 +514,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
               const SizedBox(height: AppDimensions.xl),
 
-              // ✅ NÚT ĐĂNG KÝ
+              //  NÚT ĐĂNG KÝ
               PrimaryButton(
                 text: 'Đăng ký',
                 onPressed: _register,

@@ -26,15 +26,15 @@ class UserProvider extends ChangeNotifier {
       if (userJson != null) {
         final userData = json.decode(userJson);
         _currentUser = Khachhang.fromJson(userData);
-        print('✅ User loaded from SharedPreferences');
+        print(' User loaded from SharedPreferences');
         print('   - Makh: ${_currentUser?.makh}');
         print('   - Hoten: ${_currentUser?.hoten}');
         print('   - Points: ${_currentUser?.diemthanhvien}');
       } else {
-        print('ℹ️ No user data found in SharedPreferences');
+        print('ℹNo user data found in SharedPreferences');
       }
     } catch (e) {
-      print('❌ Error loading user: $e');
+      print(' Error loading user: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -49,42 +49,42 @@ class UserProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('current_user', json.encode(user.toJson()));
       
-      print('✅ User saved to SharedPreferences');
+      print(' User saved to SharedPreferences');
       print('   - Makh: ${user.makh}');
       print('   - Hoten: ${user.hoten}');
       print('   - Points: ${user.diemthanhvien}');
       
       notifyListeners();
     } catch (e) {
-      print('❌ Error saving user: $e');
+      print(' Error saving user: $e');
     }
   }
 
-  /// ✅ REFRESH USER DATA TỪ SERVER
+  ///  REFRESH USER DATA TỪ SERVER
   Future<void> refreshUserData() async {
     if (_currentUser?.makh == null) {
-      print('⚠️ Cannot refresh user data: makh is null');
+      print(' Cannot refresh user data: makh is null');
       return;
     }
 
     try {
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🔄 REFRESHING USER DATA FROM SERVER');
+      print(' REFRESHING USER DATA FROM SERVER');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       print('Makh: ${_currentUser!.makh}');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       
       final updatedUser = await _khachhangApi.fetchCustomer(_currentUser!.makh!);
       
-      print('✅ User data fetched from server');
+      print(' User data fetched from server');
       print('   - Old points: ${_currentUser?.diemthanhvien}');
       print('   - New points: ${updatedUser.diemthanhvien}');
       
       await setUser(updatedUser);
       
-      print('✅ User data refreshed successfully!\n');
+      print(' User data refreshed successfully!\n');
     } catch (e) {
-      print('❌ Error refreshing user data: $e\n');
+      print(' Error refreshing user data: $e\n');
       // Không throw error để không làm crash app
       // App vẫn hoạt động với dữ liệu cũ
     }
@@ -93,7 +93,7 @@ class UserProvider extends ChangeNotifier {
   /// ✅ CẬP NHẬT ĐIỂM LOCAL (Không gọi API, chỉ update UI)
   void updateLocalPoints(int newPoints) {
     if (_currentUser != null) {
-      print('📝 Updating local points: ${_currentUser!.diemthanhvien} → $newPoints');
+      print(' Updating local points: ${_currentUser!.diemthanhvien} → $newPoints');
       
       _currentUser = Khachhang(
         makh: _currentUser!.makh,
@@ -124,9 +124,9 @@ class UserProvider extends ChangeNotifier {
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('current_user', json.encode(_currentUser!.toJson()));
-        print('💾 User saved to SharedPreferences');
+        print(' User saved to SharedPreferences');
       } catch (e) {
-        print('❌ Error saving to SharedPreferences: $e');
+        print(' Error saving to SharedPreferences: $e');
       }
     }
   }
@@ -134,21 +134,21 @@ class UserProvider extends ChangeNotifier {
   /// Logout
   Future<void> logout() async {
     try {
-      print('🚪 Logging out user: ${_currentUser?.hoten}');
+      print(' Logging out user: ${_currentUser?.hoten}');
       
       _currentUser = null;
       
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('current_user');
       
-      print('✅ User logged out successfully');
+      print(' User logged out successfully');
       notifyListeners();
     } catch (e) {
-      print('❌ Error logging out: $e');
+      print(' Error logging out: $e');
     }
   }
 
-  /// ✅ CLEAR ALL DATA (dùng khi logout hoàn toàn)
+  /// CLEAR ALL DATA (dùng khi logout hoàn toàn)
   Future<void> clearAllData() async {
     try {
       _currentUser = null;
@@ -156,10 +156,10 @@ class UserProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       
-      print('✅ All user data cleared');
+      print('All user data cleared');
       notifyListeners();
     } catch (e) {
-      print('❌ Error clearing data: $e');
+      print('Error clearing data: $e');
     }
   }
 }

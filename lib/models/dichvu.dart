@@ -21,7 +21,7 @@ class DichVu {
       madv: json['madv'] ?? 0,
       tendv: json['tendv'] ?? '',
       mota: json['mota'],
-      giatien: json['giatien'], // ← Giữ nguyên int
+      giatien: json['giatien'],
       trangthai: json['trangthai'],
       maloaidv: json['maloaidv'],
     );
@@ -43,7 +43,7 @@ class DichVu {
       trangthai?.toLowerCase() == 'hoạt động' || 
       trangthai?.toLowerCase() == 'available';
   
-  // ✅ Chuyển int sang double cho tính toán
+  //  Chuyển int sang double cho tính toán
   double get gia => (giatien ?? 0).toDouble();
 }
 
@@ -57,6 +57,6 @@ class SelectedDichVu {
     this.soluong = 1,
   });
 
-  // ✅ Tính tổng giá
+  //  Tính tổng giá
   double get tongGia => dichvu.gia * soluong;
 }

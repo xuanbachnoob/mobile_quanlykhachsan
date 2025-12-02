@@ -26,7 +26,7 @@ class _PointsWidgetState extends State<PointsWidget> {
   final _numberFmt = NumberFormat.decimalPattern('vi_VN');
   final _currencyFmt = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
 
-  // ✅ ĐIỂM TỐI THIỂU
+  //  ĐIỂM TỐI THIỂU
   static const int MIN_POINTS = 1000;
 
   @override
@@ -47,7 +47,7 @@ class _PointsWidgetState extends State<PointsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ CHỈ CHO DÙNG KHI CÓ ÍT NHẤT 1000 ĐIỂM
+    //  CHỈ CHO DÙNG KHI CÓ ÍT NHẤT 1000 ĐIỂM
     final canUse = widget.currentPoints >= MIN_POINTS && _usedPoints == 0;
     final usedMoney = _usedPoints;
 
@@ -88,7 +88,7 @@ class _PointsWidgetState extends State<PointsWidget> {
           ],
         ),
 
-        // ✅ HIỂN THỊ WARNING NẾU KHÔNG ĐỦ ĐIỂM TỐI THIỂU
+        //  HIỂN THỊ WARNING NẾU KHÔNG ĐỦ ĐIỂM TỐI THIỂU
         if (widget.currentPoints > 0 && widget.currentPoints < MIN_POINTS && _usedPoints == 0) ...[
           const SizedBox(height: 8),
           Container(
@@ -174,10 +174,10 @@ class _PointsWidgetState extends State<PointsWidget> {
           builder: (context, setDialogState) {
             final maxAllowed = widget.maxAmount.clamp(MIN_POINTS, widget.currentPoints);
             
-            // ✅ GỢI Ý CHỈ HIỂN THỊ CÁC MỐC >= 1000
+            //  GỢI Ý CHỈ HIỂN THỊ CÁC MỐC >= 1000
             List<int> suggested = [1000, 5000, 10000, 20000, 50000];
             
-            // ✅ THÊM NÚT "DÙNG HẾT" (maxAllowed)
+            //  THÊM NÚT "DÙNG HẾT" (maxAllowed)
             if (maxAllowed >= MIN_POINTS && !suggested.contains(maxAllowed)) {
               suggested.add(maxAllowed);
             }
@@ -290,7 +290,7 @@ class _PointsWidgetState extends State<PointsWidget> {
                         spacing: 8,
                         runSpacing: 8,
                         children: suggested.map((p) {
-                          // ✅ HIGHLIGHT NÚT "DÙNG HẾT"
+                          //  HIGHLIGHT NÚT "DÙNG HẾT"
                           final isMaxButton = p == maxAllowed;
                           
                           return ActionChip(

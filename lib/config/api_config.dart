@@ -23,9 +23,9 @@ class ApiConfig {
   static const String khachhangEndpoint = '$baseUrl/Khachhangs';
   static const String dichvuEndpoint = '$baseUrl/Dichvus';
   static const String paymentEndpoint = '$baseUrl/Payment';
-  static const String bookingEndpoint = '$baseUrl/Datphongs';  // ← Đổi tên
-  static const String chitietDatphongEndpoint = '$baseUrl/Chitietdatphongs';  // ← THÊM
-  static const String sudungdvEndpoint = '$baseUrl/Sudungdvs';  // ← THÊM
+  static const String bookingEndpoint = '$baseUrl/Datphongs';  
+  static const String chitietDatphongEndpoint = '$baseUrl/Chitietdatphongs';
+  static const String sudungdvEndpoint = '$baseUrl/Sudungdvs';
   static const String hoadonEndpoint = '$baseUrl/Hoadons';
   // ============ TIMEOUTS ============
   static const Duration connectionTimeout = Duration(seconds: 30);

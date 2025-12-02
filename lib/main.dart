@@ -13,7 +13,6 @@ import 'providers/booking_provider.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // ✅ THÊM: Allow self-signed certificates
   HttpOverrides.global = MyHttpOverrides();
   
   // Set orientation to portrait only

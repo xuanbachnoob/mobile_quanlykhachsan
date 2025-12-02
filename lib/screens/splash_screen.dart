@@ -4,7 +4,7 @@ import '../config/app_colors.dart';
 import '../config/app_text_styles.dart';
 import '../providers/user_provider.dart';
 import 'login_screen.dart';
-import 'main_screen.dart'; // ✅ Thay đổi import
+import 'main_screen.dart';
 import 'package:provider/provider.dart';
 
 /// Màn hình splash khi mở app
@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  Timer? _navigationTimer; // ✅ Thêm biến lưu timer
+  Timer? _navigationTimer; //  Thêm biến lưu timer
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Start animation
     _controller.forward();
 
-    // ✅ Lưu timer vào biến để có thể cancel
+    //  Lưu timer vào biến để có thể cancel
     _navigationTimer = Timer(
       const Duration(milliseconds: 2500),
       _navigateToNextScreen,
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   /// Navigate dựa trên login status
   void _navigateToNextScreen() {
-    // ✅ Kiểm tra mounted trước khi navigate
+    //  Kiểm tra mounted trước khi navigate
     if (!mounted) return;
 
     final userProvider = context.read<UserProvider>();
@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
-          // ✅ Đổi HomeScreen thành MainScreen
+          //  Đổi HomeScreen thành MainScreen
           return isLoggedIn ? const MainScreen() : const LoginScreen();
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _navigationTimer?.cancel(); // ✅ Cancel timer khi dispose
+    _navigationTimer?.cancel(); //  Cancel timer khi dispose
     _controller.dispose();
     super.dispose();
   }

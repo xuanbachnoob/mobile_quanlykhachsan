@@ -1,6 +1,6 @@
 class Hinhanhphong {
   final int Mahinhphong;
-  final String? Hinhchinh; // SỬA: Thêm ?
+  final String? Hinhchinh; 
   final String? Hinhphu1;
   final String? Hinhphu2;
   final String? Hinhphu3;
@@ -9,7 +9,7 @@ class Hinhanhphong {
 
   Hinhanhphong({
     required this.Mahinhphong,
-    this.Hinhchinh, // SỬA: Bỏ required
+    this.Hinhchinh,
     this.Hinhphu1,
     this.Hinhphu2,
     this.Hinhphu3,

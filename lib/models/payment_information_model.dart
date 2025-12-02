@@ -1,10 +1,10 @@
 /// Model request tạo VNPay URL
 class PaymentInformationModel {
-  final int orderId;       // Mã hóa đơn (MAHOADON)
+  final int orderId;    
   final String orderType;
-  final int amount;        // Số tiền
-  final String orderDescription; // Mô tả
-  final String name;          // Tên người thanh toán (optional)
+  final int amount;       
+  final String orderDescription; 
+  final String name;         
   final String platform = 'mobile';
 
   PaymentInformationModel({

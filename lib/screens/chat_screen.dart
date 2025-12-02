@@ -14,7 +14,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [
     ChatMessage(
-      text: 'Chào mừng quý khách đến với Khách Sạn Thanh Trà! Tôi có thể giúp gì cho bạn? 😊',
+      text: 'Chào mừng quý khách đến với Khách Sạn Thanh Trà! Tôi có thể giúp gì cho bạn? ',
       isUser: false,
     ),
   ];
@@ -44,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(
-          text: 'Xin lỗi, tôi gặp sự cố. Vui lòng thử lại. 😔',
+          text: 'Xin lỗi, tôi gặp sự cố. Vui lòng thử lại.',
           isUser: false,
         ));
         _isLoading = false;
@@ -99,7 +99,7 @@ class _ChatScreenState extends State<ChatScreen> {
               setState(() {
                 _messages.clear();
                 _messages.add(ChatMessage(
-                  text: 'Chào mừng quý khách đến với Khách Sạn Thanh Trà! Tôi có thể giúp gì cho bạn? 😊',
+                  text: 'Chào mừng quý khách đến với Khách Sạn Thanh Trà! Tôi có thể giúp gì cho bạn? ',
                   isUser: false,
                 ));
               });

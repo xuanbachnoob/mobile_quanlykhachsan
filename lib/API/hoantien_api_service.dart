@@ -20,17 +20,6 @@ class HoantienApiService {
       'ghichu': ghichu ?? '',
     });
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('💰 TẠO YÊU CẦU HOÀN TIỀN');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('URL: $url');
-    print('Madatphong: $madatphong');
-    print('Sotienhoan: $sotienhoan');
-    print('Lydo: $lydo');
-    print('Ghichu: $ghichu');
-    print('Body JSON: $body');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
     try {
       final response = await http.post(
         url,
@@ -41,24 +30,16 @@ class HoantienApiService {
         body: body,
       ).timeout(const Duration(seconds: 30));
 
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('📥 RESPONSE HOÀN TIỀN');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-      print('Response Headers: ${response.headers}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print('✅ Tạo hoàn tiền thành công!\n');
+
         return Hoantien.fromJson(data);
       } else {
-        // ✅ PARSE CHI TIẾT LỖI
+
         String errorMessage = 'Lỗi ${response.statusCode}';
         
         try {
           final errorData = jsonDecode(response.body);
-          print('❌ ERROR DATA: $errorData\n');
           
           if (errorData is Map) {
             if (errorData.containsKey('message')) {
@@ -76,18 +57,12 @@ class HoantienApiService {
             }
           }
         } catch (e) {
-          print('❌ Không parse được error: $e\n');
           errorMessage = response.body;
         }
         
         throw Exception(errorMessage);
       }
     } catch (e, stackTrace) {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('❌ EXCEPTION TẠO HOÀN TIỀN');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       rethrow;
     }
   }

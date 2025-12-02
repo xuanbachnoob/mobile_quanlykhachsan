@@ -4,7 +4,7 @@ class Phong {
   final int Succhua;
   final String Trangthai;
   final int Maloaiphong;
-  final String? Mavoucher; // <-- Đã là String?
+  final String? Mavoucher;
   final int Mahinhphong;
 
   Phong({
@@ -13,7 +13,7 @@ class Phong {
     required this.Succhua,
     required this.Trangthai,
     required this.Maloaiphong,
-    this.Mavoucher, // <-- SỬA: Bỏ 'required' vì nó có thể null
+    this.Mavoucher, 
     required this.Mahinhphong,
   });
 
@@ -24,7 +24,7 @@ class Phong {
       Succhua: json['succhua'] as int,
       Trangthai: json['trangthai'] as String,
       Maloaiphong: json['maloaiphong'] as int,
-      Mavoucher: json['mavoucher'] as String?, // <-- SỬA: ép kiểu sang 'String?'
+      Mavoucher: json['mavoucher'] as String?,
       Mahinhphong: json['mahinhphong'] as int,
     );
   }

@@ -92,20 +92,20 @@ Future<void> _login() async {
   setState(() => _isLoading = true);
 
   try {
-    print('🔐 Logging in with: ${_emailController.text.trim()} / ${_passwordController.text.trim()}');
+    print('Logging in with: ${_emailController.text.trim()} / ${_passwordController.text.trim()}');
     
     final response = await _authService.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
 
-    print('✅ Login API Response:');
+    print('Login API Response:');
     print(response);
 
-    // ✅ Parse Khachhang from NEW login response
+    //  Parse Khachhang from NEW login response
     final user = Khachhang.fromLoginJson(response);
     
-    print('✅ User object created:');
+    print('User object created:');
     print('   - Makh: ${user.makh}');
     print('   - Hoten: ${user.hoten}');
     print('   - Hoten: ${user.sdt}');
@@ -117,14 +117,14 @@ Future<void> _login() async {
 
     // Check if makh is available
     if (user.makh == null) {
-      print('⚠️ Warning: makh is null in login response!');
+      print(' Warning: makh is null in login response!');
     }
 
-    // ✅ Save to UserProvider
+    //  Save to UserProvider
     if (mounted) {
       final userProvider = context.read<UserProvider>();
       userProvider.setUser(user);
-      print('✅ User saved to provider');
+      print(' User saved to provider');
     }
 
     setState(() => _isLoading = false);
@@ -138,7 +138,7 @@ Future<void> _login() async {
     }
 
   } catch (e) {
-    print('❌ Login error: $e');
+    print(' Login error: $e');
     
     setState(() => _isLoading = false);
     

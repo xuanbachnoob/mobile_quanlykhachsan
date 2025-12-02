@@ -18,10 +18,10 @@ class BookingCartProvider with ChangeNotifier {
   DateTime? get checkInDate => _checkInDate;
   DateTime? get checkOutDate => _checkOutDate;
   
-  // ✅ SỐ PHÒNG
+
   int get roomCount => _selectedRooms.length;
 
-  // ✅ SỐ ĐÊM
+
   int get numberOfNights {
     if (_checkInDate == null || _checkOutDate == null) {
       return 1; // Mặc định 1 đêm
@@ -30,10 +30,7 @@ class BookingCartProvider with ChangeNotifier {
     return nights > 0 ? nights : 1; // Đảm bảo ít nhất 1 đêm
   }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ✅ DISCOUNT LOGIC (GIẢM GIÁ THEO SỐ PHÒNG)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
+
   /// Tính % giảm giá dựa trên số phòng
   double get discountPercentage {
     if (roomCount >= 10) return 0.10; // 10% cho 10+ phòng
@@ -65,11 +62,7 @@ class BookingCartProvider with ChangeNotifier {
     return '💡';
   }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✅ PRICE CALCULATION (TÍNH TIỀN) - ĐÃ SỬA
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/// 1️⃣ Tổng giá GỐC (chưa trừ voucher, chưa giảm giá)
 int get originalSubtotal {
   if (_selectedRooms.isEmpty) return 0;
   int total = 0;
@@ -79,7 +72,7 @@ int get originalSubtotal {
   return total * numberOfNights;
 }
 
-/// 2️⃣ Tổng tiền GIẢM TỪ VOUCHER
+
 int get voucherDiscountTotal {
   if (_selectedRooms.isEmpty) return 0;
   int totalVoucherDiscount = 0;
@@ -90,30 +83,30 @@ int get voucherDiscountTotal {
   return totalVoucherDiscount * numberOfNights;
 }
 
-/// 3️⃣ Tổng tiền SAU KHI TRỪ VOUCHER (chưa giảm giá số phòng)
+
 int get subtotal {
   return originalSubtotal - voucherDiscountTotal;
 }
 
-/// 4️⃣ Số tiền GIẢM GIÁ THEO SỐ PHÒNG (tính trên subtotal)
+
 int get discountAmount {
   return (subtotal * discountPercentage).toInt();
 }
 
-/// 5️⃣ TỔNG TIỀN CUỐI CÙNG
+
 int get totalPrice {
   return subtotal - discountAmount;
 }
 
 int get totalAmount => totalPrice;
 
-/// 6️⃣ TỔNG TẤT CẢ GIẢM GIÁ
+
 int get totalDiscount {
   return voucherDiscountTotal + discountAmount;
 }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // ✅ DISCOUNT TIERS (THƯ VIỆN MỨC GIẢM GIÁ)
+  //  DISCOUNT TIERS (THƯ VIỆN MỨC GIẢM GIÁ)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   
   /// Danh sách các mức giảm giá
@@ -178,14 +171,7 @@ int get totalDiscount {
     _checkOutDate = checkOut;
     _selectedRooms.clear(); // Xóa phòng cũ khi tìm kiếm mới
     
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔄 UPDATED SEARCH CRITERIA');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('Check-in:  ${checkIn.toString().split(' ')[0]}');
-    print('Check-out: ${checkOut.toString().split(' ')[0]}');
-    print('Nights: $numberOfNights');
-    print('Cart cleared: ${_selectedRooms.isEmpty}');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
     
     notifyListeners();
   }
@@ -195,27 +181,13 @@ void addRoom(Phongandloaiphong item) {
   if (!_selectedRooms.containsKey(item.phong.Maphong)) {
     _selectedRooms[item.phong.Maphong] = item;
     
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('✅ ROOM ADDED TO CART');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('Room: ${item.phong.Sophong} - ${item.loaiphong.Tenloaiphong}');
-    print('Original Price: ${item.loaiphong.Giacoban} VNĐ/night');
+
     
     if (item.hasVoucher) {
-      print('🎁 Voucher: ${item.voucher!.tenvoucher}');
-      print('   Discount: -${item.voucher!.giagiam} VNĐ');
-      print('   Price after voucher: ${item.giaSauGiam} VNĐ/night');
+
     }
     
-    print('Total rooms: $roomCount');
-    print('Room Discount: ${(discountPercentage * 100).toInt()}%');
-    print('Original Subtotal: $originalSubtotal VNĐ');
-    print('Voucher Discount: -$voucherDiscountTotal VNĐ');
-    print('After Voucher: $subtotal VNĐ');
-    print('Room Discount Amount: -$discountAmount VNĐ');
-    print('FINAL TOTAL: $totalPrice VNĐ');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
+
     notifyListeners();
   }
 }
@@ -225,14 +197,7 @@ void addRoom(Phongandloaiphong item) {
     if (_selectedRooms.containsKey(maPhong)) {
       final removedRoom = _selectedRooms.remove(maPhong);
       
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🗑️ ROOM REMOVED FROM CART');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('Room: ${removedRoom?.phong.Sophong}');
-      print('Remaining rooms: $roomCount');
-      print('Discount: ${(discountPercentage * 100).toInt()}%');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-      
+
       notifyListeners();
     }
   }
@@ -246,10 +211,7 @@ void addRoom(Phongandloaiphong item) {
   void clearCart() {
     _selectedRooms.clear();
     
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🧹 CART CLEARED');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
+
     notifyListeners();
   }
 
@@ -259,21 +221,15 @@ void addRoom(Phongandloaiphong item) {
     _checkInDate = null;
     _checkOutDate = null;
     
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🧹 FULL RESET');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
+
     notifyListeners();
   }
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // DEBUG FUNCTIONS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  
+
   /// In thông tin giỏ hàng ra console
   void debugPrintCart() {
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🛒 CART DEBUG INFO');
+    print(' CART DEBUG INFO');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Check-in:  ${_checkInDate?.toString().split(' ')[0] ?? "Not set"}');
     print('Check-out: ${_checkOutDate?.toString().split(' ')[0] ?? "Not set"}');
@@ -291,13 +247,9 @@ void addRoom(Phongandloaiphong item) {
         print('  - Room ${room.phong.Sophong}: ${room.loaiphong.Tenloaiphong}');
       }
     }
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
   }
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✅ DISCOUNT TIER MODEL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 class DiscountTier {
   final int minRooms;

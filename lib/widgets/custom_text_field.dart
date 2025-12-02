@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ✅ THÊM IMPORT NÀY
+import 'package:flutter/services.dart';
 import '../config/app_colors.dart';
 import '../config/app_dimensions.dart';
 
@@ -13,7 +13,7 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
-  final List<TextInputFormatter>? inputFormatters; // ✅ THÊM PARAMETER NÀY
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     Key? key,
@@ -26,7 +26,7 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.validator,
-    this.inputFormatters, // ✅ THÊM VÀO CONSTRUCTOR
+    this.inputFormatters,
   }) : super(key: key);
 
   @override
@@ -48,7 +48,7 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           validator: validator,
-          inputFormatters: inputFormatters, // ✅ THÊM DÒNG NÀY
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(

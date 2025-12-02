@@ -25,7 +25,7 @@ class BookingProvider extends ChangeNotifier {
   double get roomsTotal {
   return selectedRooms.fold<double>(
     0,
-    (sum, room) => sum + room.giaSauGiam * numberOfNights, // ← DÙNG giaSauGiam
+    (sum, room) => sum + room.giaSauGiam * numberOfNights,
   );
 }
 
@@ -53,7 +53,7 @@ class BookingProvider extends ChangeNotifier {
 
   void addService(DichVu service) {
     final existingIndex = _selectedServices.indexWhere(
-      (s) => s.dichvu.madv == service.madv, // ← Sửa từ madichvu → madv
+      (s) => s.dichvu.madv == service.madv, 
     );
 
     if (existingIndex >= 0) {
@@ -65,13 +65,13 @@ class BookingProvider extends ChangeNotifier {
   }
 
   void removeService(int madv) {
-    _selectedServices.removeWhere((s) => s.dichvu.madv == madv); // ← Sửa
+    _selectedServices.removeWhere((s) => s.dichvu.madv == madv); 
     notifyListeners();
   }
 
   void updateServiceQuantity(int madv, int quantity) {
     final index = _selectedServices.indexWhere(
-      (s) => s.dichvu.madv == madv, // ← Sửa
+      (s) => s.dichvu.madv == madv, 
     );
     if (index >= 0) {
       if (quantity > 0) {

@@ -13,16 +13,16 @@ class PaymentWebViewScreen extends StatefulWidget {
   final String paymentUrl;
   final int orderId;
   final int amount;
-  final int usedPoints; // ✅ THÊM: Số điểm đã sử dụng
-  final int madatphong; // ✅ THÊM: Mã đặt phòng
+  final int usedPoints; 
+  final int madatphong; 
 
   const PaymentWebViewScreen({
     super.key,
     required this.paymentUrl,
     required this.orderId,
     required this.amount,
-    this.usedPoints = 0, // ✅ THÊM: Mặc định 0
-    required this.madatphong, // ✅ THÊM: Mã đặt phòng
+    this.usedPoints = 0, 
+    required this.madatphong, 
   });
 
   @override
@@ -39,12 +39,12 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     super.initState();
     
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🌐 PAYMENT WEBVIEW INITIALIZED');
+    print('PAYMENT WEBVIEW INITIALIZED');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Payment URL: ${widget.paymentUrl}');
     print('Order ID: ${widget.orderId}');
     print('Amount: ${widget.amount} VNĐ');
-    print('Used Points: ${widget.usedPoints} điểm'); // ✅ LOG ĐIỂM
+    print('Used Points: ${widget.usedPoints} điểm');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     
     _initWebView();
@@ -59,7 +59,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         'FlutterWebView',
         onMessageReceived: (JavaScriptMessage message) {
           print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          print('📨 MESSAGE FROM WEBVIEW');
+          print('MESSAGE FROM WEBVIEW');
           print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           print('Message: ${message.message}');
           print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -77,14 +77,14 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            print('📊 Loading progress: $progress%');
+            print('Loading progress: $progress%');
           },
           
           onPageStarted: (String url) {
             setState(() => _isLoading = true);
             
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            print('🔄 PAGE STARTED');
+            print('PAGE STARTED');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             print('URL: $url');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -92,7 +92,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             if (!_isProcessing && 
                 (url.contains('/VNPayReturn') || 
                  url.contains('vnp_ResponseCode'))) {
-              print('🎯 DETECTED VNPAY RETURN URL\n');
+              print('DETECTED VNPAY RETURN URL\n');
               _handlePaymentCallback(url);
             }
           },
@@ -101,7 +101,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             setState(() => _isLoading = false);
             
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            print('✅ PAGE FINISHED');
+            print('PAGE FINISHED');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             print('URL: $url');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -109,7 +109,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           
           onWebResourceError: (WebResourceError error) {
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            print('❌ WEBVIEW ERROR');
+            print('WEBVIEW ERROR');
             print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             print('Description: ${error.description}');
             print('Error Type: ${error.errorType}');
@@ -137,7 +137,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       final platform = params['platform'] ?? 'web';
 
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('💳 PAYMENT CALLBACK DETECTED');
+      print('PAYMENT CALLBACK DETECTED');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       print('Response Code: $vnpResponseCode');
       print('Txn Ref: $vnpTxnRef');
@@ -147,7 +147,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (platform == 'mobile') {
-        print('📱 Mobile platform detected - Waiting for JavaScript message...\n');
+        print('Mobile platform detected - Waiting for JavaScript message...\n');
         setState(() => _isProcessing = false);
         return;
       }
@@ -160,24 +160,24 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         _handlePaymentFailed(errorCode: vnpResponseCode);
       }
     } catch (e) {
-      print('❌ Error handling callback: $e\n');
+      print('Error handling callback: $e\n');
       setState(() => _isProcessing = false);
     }
   }
 
-  // ✅ CẬP NHẬT: XỬ LÝ THANH TOÁN THÀNH CÔNG + CẬP NHẬT ĐIỂM
+  // CẬP NHẬT: XỬ LÝ THANH TOÁN THÀNH CÔNG + CẬP NHẬT ĐIỂM
   Future<void> _handlePaymentSuccess() async {
     if (_isProcessing && !mounted) return;
     
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('✅ PAYMENT SUCCESS HANDLER');
+    print('PAYMENT SUCCESS HANDLER');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Order ID: ${widget.orderId}');
     print('Amount: ${widget.amount}');
     print('Used Points: ${widget.usedPoints}');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    // ✅ SHOW LOADING DIALOG NGẮN GỌN
+    // SHOW LOADING DIALOG NGẮN GỌN
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -211,22 +211,22 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       }
 
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🎯 POINTS CALCULATION');
+      print('POINTS CALCULATION');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       print('Current points: $currentPoints');
       print('Points to deduct (used): ${widget.usedPoints}');
       print('Amount paid: ${widget.amount}');
       
-      // ✅ TÍNH ĐIỂM TÍCH LŨY: 1000 VND = 1 điểm
+      // TÍNH ĐIỂM TÍCH LŨY: 1000 VND = 1 điểm
       final pointsToAdd = (widget.amount / 1000).floor();
       print('Points to add (earned): $pointsToAdd');
       
-      // ✅ TÍNH TỔNG ĐIỂM MỚI
+      // TÍNH TỔNG ĐIỂM MỚI
       final newTotalPoints = (currentPoints - widget.usedPoints + pointsToAdd).clamp(0, 999999999);
       print('New total points: $newTotalPoints');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-      // ✅ GỌI API CẬP NHẬT ĐIỂM
+      // GỌI API CẬP NHẬT ĐIỂM
       final khachhangApi = KhachhangApiService();
       final updateSuccess = await khachhangApi.updatePoints(makh, newTotalPoints);
       final chitiethoadon = await BookingApiService().postChitiethoadon(
@@ -240,19 +240,19 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
       print('✅ Points updated in database!\n');
 
-      // ✅ REFRESH USER DATA TỪ SERVER
+      // REFRESH USER DATA TỪ SERVER
       print('🔄 Refreshing user data...\n');
       await userProvider.refreshUserData();
       
       final updatedPoints = userProvider.currentUser?.diemthanhvien ?? newTotalPoints;
-      print('✅ User data refreshed! New points: $updatedPoints\n');
+      print('User data refreshed! New points: $updatedPoints\n');
 
-      // ✅ CLOSE LOADING DIALOG
+      // CLOSE LOADING DIALOG
       if (mounted) {
         Navigator.of(context).pop();
       }
 
-      // ✅ CHUYỂN THẲNG VỀ TRANG CHỦ (KHÔNG HIỂN THỊ DIALOG)
+      // CHUYỂN THẲNG VỀ TRANG CHỦ (KHÔNG HIỂN THỊ DIALOG)
       if (mounted) {
         print('🏠 Navigating to home screen...\n');
         Navigator.of(context).pushNamedAndRemoveUntil(
@@ -262,17 +262,17 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       }
     } catch (e) {
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('❌ ERROR UPDATING POINTS');
+      print('ERROR UPDATING POINTS');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       print('Error: $e');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-      // ✅ CLOSE LOADING DIALOG
+      // CLOSE LOADING DIALOG
       if (mounted) {
         Navigator.of(context).pop();
       }
 
-      // ✅ SHOW ERROR TOAST HOẶC SNACKBAR (KHÔNG DÙNG DIALOG)
+      // SHOW ERROR TOAST HOẶC SNACKBAR (KHÔNG DÙNG DIALOG)
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -308,11 +308,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           ),
         );
 
-        // ✅ VỀ TRANG CHỦ SAU 2 GIÂY
+        // VỀ TRANG CHỦ SAU 2 GIÂY
         await Future.delayed(const Duration(seconds: 2));
         
         if (mounted) {
-          print('🏠 Navigating to home screen after error...\n');
+          print('Navigating to home screen after error...\n');
           Navigator.of(context).pushNamedAndRemoveUntil(
             '/',
             (route) => false,
@@ -326,7 +326,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     if (_isProcessing && !mounted) return;
 
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('❌ PAYMENT FAILED');
+    print('PAYMENT FAILED');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Error Code: $errorCode');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -414,7 +414,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
   }
 
   void _closeAndGoHome() {
-    print('🏠 Closing WebView and going home...\n');
+    print('Closing WebView and going home...\n');
     if (mounted) {
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/',
@@ -444,7 +444,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
-                print('🔄 Refreshing WebView...\n');
+                print('Refreshing WebView...\n');
                 _controller.reload();
               },
             ),
@@ -515,7 +515,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
   @override
   void dispose() {
-    print('🗑️ PaymentWebViewScreen disposed\n');
+    print('PaymentWebViewScreen disposed\n');
     super.dispose();
   }
 }

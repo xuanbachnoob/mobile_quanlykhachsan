@@ -32,18 +32,18 @@ class ReviewApiService {
           .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
-        print('✅ Review submitted successfully');
+
         return;
       } else {
         throw Exception('Lỗi ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error: $e');
+
       rethrow;
     }
   }
 
-  /// ✅ KIỂM TRA ĐÃ ĐÁNH GIÁ CHƯA
+  /// KIỂM TRA ĐÃ ĐÁNH GIÁ CHƯA
   static Future<bool> checkReview({
     required int makh,
     required int madatphong,
@@ -60,7 +60,7 @@ class ReviewApiService {
         return false;
       }
     } catch (e) {
-      print('❌ Check review error: $e');
+
       return false;
     }
   }

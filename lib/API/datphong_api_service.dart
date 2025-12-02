@@ -167,7 +167,7 @@ class DatPhongApiService {
       return [];
     }
 
-    // ✅ BƯỚC 1.5: LỌC PHÒNG THEO SỐ NGƯỜI (thêm vào đây)
+    // BƯỚC 1.5: LỌC PHÒNG THEO SỐ NGƯỜI (thêm vào đây)
     final List<Phong> phongPhuHop = phongTrong.where((phong) {
       // Giả sử model Phong có field songuoitoida hoặc suchua
       // Thay 'songuoitoida' bằng tên field thực tế trong model của bạn
@@ -239,26 +239,18 @@ class DatPhongApiService {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((e) => Datphong.fromJson(e)).toList();
     } else {
-      print('❌ Lỗi khi gọi API: ${response.statusCode}');
       throw Exception('Không thể tải dữ liệu');
     }
   }
 
-    /// ✅ HỦY PHÒNG VỚI LÝ DO
+    /// HỦY PHÒNG VỚI LÝ DO
   Future<Map<String, dynamic>> huyphong(int madatphong, {String? lydo}) async {
     final url = Uri.parse('${ApiConfig.bookingEndpoint}/huy/$madatphong');
 
-    // ✅ GỬI LÝ DO TRONG BODY
+    // GỬI LÝ DO TRONG BODY
     final body = jsonEncode({
       'LyDo': lydo ?? 'Không rõ lý do',
     });
-
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('❌ HỦY PHÒNG');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('URL: $url');
-    print('Body: $body');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     try {
       final response = await http.put(
@@ -267,11 +259,6 @@ class DatPhongApiService {
         body: body,
       ).timeout(const Duration(seconds: 30));
 
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('📥 RESPONSE HỦY PHÒNG');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
@@ -279,7 +266,7 @@ class DatPhongApiService {
         throw Exception('Hủy phòng thất bại: ${response.body}');
       }
     } catch (e) {
-      print('❌ Lỗi hủy phòng: $e\n');
+
       rethrow;
     }
   }

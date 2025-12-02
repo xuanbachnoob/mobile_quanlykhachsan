@@ -622,7 +622,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
                 ),
               ],
 
-              // ✅ POINTS WIDGET
+              //  POINTS WIDGET
               PointsWidget(
                 currentPoints: userProvider.currentUser?.diemthanhvien ?? 0,
                 maxAmount: (cart.totalPrice + booking.servicesTotal.toInt()),
@@ -1206,7 +1206,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
       final bookingApi = BookingApiService();
       final paymentApi = PaymentApiService();
 
-      print('📋 Preparing booking data...');
+      print('Preparing booking data...');
 
       final datphong = Datphong(
         ngaynhanphong: booking.checkInDate!,
@@ -1235,7 +1235,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
 
       final mahoadon = result['mahoadon']!;
 
-      print('\n💳 Creating payment URL...');
+      print('\n Creating payment URL...');
 
       final paymentModel = PaymentInformationModel(
         orderId: mahoadon,
@@ -1250,7 +1250,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
       print('   - Points used: $_usedPoints ($_pointsDiscount VNĐ)');
 
       final paymentResponse = await paymentApi.createVnPayUrl(paymentModel);
-      print('✅ Payment URL created');
+      print(' Payment URL created');
 
       Navigator.pop(context);
 
@@ -1270,7 +1270,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
         ),
       );
     } catch (e) {
-      print('❌ Booking failed: $e');
+
 
       Navigator.pop(context);
 

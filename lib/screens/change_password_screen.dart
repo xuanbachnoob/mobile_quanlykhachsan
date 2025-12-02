@@ -20,7 +20,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authApi = AuthApiService();  // ✅ THÊM API SERVICE
+  final _authApi = AuthApiService();  //  THÊM API SERVICE
 
   bool _obscureCurrentPassword = true;
   bool _obscureNewPassword = true;
@@ -40,7 +40,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return;
     }
 
-    // ✅ GET USER FROM PROVIDER
+    //  GET USER FROM PROVIDER
     final userProvider = context.read<UserProvider>();
     final user = userProvider.currentUser;
 
@@ -71,13 +71,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('🔐 CHANGE PASSWORD');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('Email/SDT: $emailOrSdt');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-      // ✅ GỌI API THẬT
+
+
       final message = await _authApi.changePassword(
         emailOrSdt: emailOrSdt,
         oldPassword: currentPassword,
@@ -89,10 +85,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (!mounted) return;
 
-      // ✅ LOGOUT SAU KHI ĐỔI MẬT KHẨU
+      //  LOGOUT SAU KHI ĐỔI MẬT KHẨU
       await userProvider.logout();
 
-      // ✅ SHOW SUCCESS DIALOG
+      //  SHOW SUCCESS DIALOG
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -115,7 +111,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               onPressed: () {
                 Navigator.pop(context); // Close dialog
 
-                // ✅ Navigate to login
+                //  Navigate to login
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -131,11 +127,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
       );
     } catch (e) {
-      print('❌ Change password failed: $e\n');
+      print(' Change password failed: $e\n');
 
       if (!mounted) return;
 
-      // ✅ SHOW ERROR
+      //  SHOW ERROR
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString().replaceAll('Exception: ', '')),
@@ -389,7 +385,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 
-  // ✅ VALIDATE MẬT KHẨU MẠNH
+  //  VALIDATE MẬT KHẨU MẠNH
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập mật khẩu';
@@ -414,7 +410,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt';
     }
 
-    // ✅ KIỂM TRA KHÁC MẬT KHẨU CŨ
+    //  KIỂM TRA KHÁC MẬT KHẨU CŨ
     if (value == _currentPasswordController.text) {
       return 'Mật khẩu mới phải khác mật khẩu hiện tại';
     }

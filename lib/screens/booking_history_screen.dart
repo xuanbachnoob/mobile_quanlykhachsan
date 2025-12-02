@@ -135,13 +135,13 @@ class _BookingCardState extends State<BookingCard> {
   @override
   void initState() {
     super.initState();
-    // ✅ Chỉ check nếu trạng thái là "Đã trả"
+    // Chỉ check nếu trạng thái là "Đã trả"
     if (widget.booking.trangthai == 'Đã trả') {
       _checkReviewStatus();
     }
   }
 
-  /// ✅ GỌI API CHECK REVIEW
+  /// GỌI API CHECK REVIEW
   Future<void> _checkReviewStatus() async {
     final user = Provider.of<UserProvider>(context, listen: false).currentUser;
     final madatphong = widget.booking.madatphong;
@@ -457,7 +457,7 @@ class _BookingCardState extends State<BookingCard> {
                       ),
                     ),
                   
-                  // ✅ NÚT ĐÁNH GIÁ - CÓ KIỂM TRA
+                  // NÚT ĐÁNH GIÁ - CÓ KIỂM TRA
                   if (widget.booking.trangthai == 'Đã trả')
                     Expanded(
                       child: _isCheckingReview
@@ -701,7 +701,7 @@ void _showChangeRoomDialog(BuildContext context) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ✅ HEADER
+            //  HEADER
             const Text(
               'Yêu Cầu Đổi Phòng',
               style: TextStyle(
@@ -713,7 +713,7 @@ void _showChangeRoomDialog(BuildContext context) {
             ),
             const SizedBox(height: 20),
 
-            // ✅ THÔNG BÁO
+            //  THÔNG BÁO
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -759,11 +759,11 @@ void _showChangeRoomDialog(BuildContext context) {
             ),
             const SizedBox(height: 24),
 
-            // ✅ ĐƯỜNG KẺ
+            //  ĐƯỜNG KẺ
             const Divider(height: 1, thickness: 1),
             const SizedBox(height: 20),
 
-            // ✅ THÔNG TIN LIÊN HỆ
+            //  THÔNG TIN LIÊN HỆ
             const Text(
               'Vui lòng liên hệ trực tiếp:',
               style: TextStyle(
@@ -775,7 +775,7 @@ void _showChangeRoomDialog(BuildContext context) {
             ),
             const SizedBox(height: 20),
 
-            // ✅ 3 CÁCH LIÊN HỆ
+            // 3 CÁCH LIÊN HỆ
             Row(
               children: [
                 // HOTLINE
@@ -826,7 +826,7 @@ void _showChangeRoomDialog(BuildContext context) {
             ),
             const SizedBox(height: 24),
 
-            // ✅ NÚT ĐÓNG
+            //  NÚT ĐÓNG
             ElevatedButton.icon(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.check, size: 18),
@@ -848,7 +848,7 @@ void _showChangeRoomDialog(BuildContext context) {
   );
 }
 
-/// ✅ CARD LIÊN HỆ
+//  CARD LIÊN HỆ
 Widget _buildContactCard({
   required IconData icon,
   required Color iconColor,
@@ -927,11 +927,11 @@ Widget _buildContactCard({
     final hoadon = booking.hoadons?.isNotEmpty == true ? booking.hoadons!.first : null;
     final tongtien = hoadon?.tongtien ?? 0;
 
-    // ✅ TÍNH THỜI GIAN TRƯỚC CHECKIN
+    //  TÍNH THỜI GIAN TRƯỚC CHECKIN
     final now = DateTime.now();
     final hoursUntilCheckin = ngaynhanphong.difference(now).inHours;
 
-    // ✅ TÍNH TIỀN HOÀN
+    //  TÍNH TIỀN HOÀN
     int refundAmount = 0;
     String refundPolicy = '';
     Color policyColor = Colors.green;
@@ -950,7 +950,7 @@ Widget _buildContactCard({
       policyColor = Colors.red;
     }
 
-    // ✅ SHOW DIALOG CHÍNH SÁCH HỦY
+    //  SHOW DIALOG CHÍNH SÁCH HỦY
     final selectedReason = await showDialog<String>(
       context: context,
       builder: (ctx) => _CancelPolicyDialog(
@@ -963,7 +963,7 @@ Widget _buildContactCard({
 
     if (selectedReason == null || !context.mounted) return;
 
-    // ✅ SHOW LOADING
+    //  SHOW LOADING
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -971,12 +971,12 @@ Widget _buildContactCard({
     );
 
         try {
-      // 1️⃣ HỦY PHÒNG - ✅ TRUYỀN LÝ DO
+      // 1️ HỦY PHÒNG -  TRUYỀN LÝ DO
       await DatPhongApiService().huyphong(
         booking.madatphong!,
-        lydo: selectedReason, // ✅ THÊM PARAMETER NÀY
+        lydo: selectedReason, //  THÊM PARAMETER NÀY
       );
-      print('✅ Hủy phòng thành công\n');
+      print(' Hủy phòng thành công\n');
       if (!context.mounted) return;
       Navigator.of(context).pop(); // Đóng loading
 
@@ -1009,7 +1009,7 @@ Widget _buildContactCard({
       }
     } catch (e, stackTrace) {
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('❌ LỖI HỦY PHÒNG');
+      print(' LỖI HỦY PHÒNG');
       print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       print('Error: $e');
       print('StackTrace: $stackTrace');
@@ -1061,7 +1061,7 @@ Widget _buildContactCard({
         booking: widget.booking,
         madatphong: madatphong,
         onSuccess: () {
-          // ✅ Sau khi đánh giá thành công, cập nhật UI
+          //  Sau khi đánh giá thành công, cập nhật UI
           setState(() => _hasReviewed = true);
           if (widget.onRefresh != null) widget.onRefresh!();
         },
@@ -1071,7 +1071,7 @@ Widget _buildContactCard({
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✅ REVIEW DIALOG WIDGET
+//  REVIEW DIALOG WIDGET
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 class ReviewDialog extends StatefulWidget {
@@ -1109,15 +1109,15 @@ class _ReviewDialogState extends State<ReviewDialog> {
   String _getRatingText(int rating) {
     switch (rating) {
       case 1:
-        return 'Rất tệ 😞';
+        return 'Rất tệ ';
       case 2:
-        return 'Tệ 😕';
+        return 'Tệ ';
       case 3:
-        return 'Bình thường 😐';
+        return 'Bình thường ';
       case 4:
-        return 'Tốt 😊';
+        return 'Tốt ';
       case 5:
-        return 'Xuất sắc 🤩';
+        return 'Xuất sắc ';
       default:
         return '';
     }
@@ -1145,7 +1145,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
       return;
     }
 
-    // ✅ LƯU NAVIGATOR TRƯỚC KHI POP
+    // LƯU NAVIGATOR TRƯỚC KHI POP
     final navigator = Navigator.of(context);
     final rootNavigator = Navigator.of(context, rootNavigator: true);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -1171,7 +1171,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
         danhgia: _commentController.text.trim(),
       );
 
-      // ✅ Đóng loading
+      //  Đóng loading
       rootNavigator.pop();
 
       // Show success
@@ -1201,7 +1201,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
         widget.onSuccess!();
       }
     } catch (e) {
-      // ✅ Đóng loading
+      //  Đóng loading
       rootNavigator.pop();
 
       // Show error
@@ -1410,7 +1410,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ✅ CANCEL POLICY DIALOG
+// CANCEL POLICY DIALOG
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 class _CancelPolicyDialog extends StatefulWidget {
@@ -1459,7 +1459,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ✅ HEADER
+              //  HEADER
               Row(
                 children: [
                   Container(
@@ -1494,7 +1494,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
               ),
               const SizedBox(height: 16),
 
-              // ✅ CHÍNH SÁCH FULL
+              //  CHÍNH SÁCH FULL
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1515,7 +1515,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
                     ),
                     const Divider(height: 24),
 
-                    // ✅ HỦY TRƯỚC 48H
+                    //  HỦY TRƯỚC 48H
                     _buildPolicyRow(
                       icon: Icons.check_circle,
                       iconColor: Colors.green,
@@ -1526,7 +1526,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ✅ HỦY TRƯỚC 24H
+                    //  HỦY TRƯỚC 24H
                     _buildPolicyRow(
                       icon: Icons.schedule,
                       iconColor: Colors.orange,
@@ -1537,7 +1537,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ✅ HỦY TRONG 24H
+                    //  HỦY TRONG 24H
                     _buildPolicyRow(
                       icon: Icons.cancel,
                       iconColor: Colors.red,
@@ -1551,7 +1551,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
               ),
               const SizedBox(height: 16),
 
-              // ✅ SỐ TIỀN ĐƯỢC HOÀN
+              //  SỐ TIỀN ĐƯỢC HOÀN
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1634,7 +1634,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
                 const SizedBox(height: 16),
               ],
 
-              // ✅ LÝ DO HỦY PHÒNG
+              //  LÝ DO HỦY PHÒNG
               const Text(
                 'Lý do hủy phòng',
                 style: TextStyle(
@@ -1672,7 +1672,7 @@ class _CancelPolicyDialogState extends State<_CancelPolicyDialog> {
               ),
               const SizedBox(height: 24),
 
-              // ✅ BUTTONS
+              //  BUTTONS
               Row(
                 children: [
                   Expanded(
